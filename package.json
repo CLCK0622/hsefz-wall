@@ -6,17 +6,32 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "migrate:create": "node-pg-migrate create -j ts",
+    "migrate:up": "dotenv -e .env.local -- node --import tsx ./node_modules/node-pg-migrate/bin/node-pg-migrate up",
+    "codegen": "dotenv -e .env.local -- kysely-codegen --out-file=./lib/db/types.ts"
   },
   "dependencies": {
+    "@clerk/localizations": "^3.20.9",
+    "@clerk/nextjs": "^6.30.1",
+    "@vercel/blob": "^1.1.1",
+    "kysely": "^0.28.5",
+    "next": "15.4.6",
+    "node-pg-migrate": "^8.0.3",
+    "pg": "^8.16.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.4.6"
+    "sass": "^1.90.0",
+    "svix": "^1.71.0"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
+    "@types/pg": "^8.15.5",
     "@types/react": "^19",
-    "@types/react-dom": "^19"
+    "@types/react-dom": "^19",
+    "dotenv-cli": "^10.0.0",
+    "kysely-codegen": "^0.18.5",
+    "tsx": "^4.20.4",
+    "typescript": "^5"
   }
 }

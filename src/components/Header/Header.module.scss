@@ -1,0 +1,30 @@
+// components/Header/Header.module.scss
+.header {
+    background-color: #fff;
+    border-bottom: 1px solid #dbdbdb;
+    padding: 0 20px;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.container {
+    max-width: 975px;
+    height: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-decoration: none;
+    color: #262626;
+}
+
+.userSection {
+    // UserButton has its own styling, we can just align it
+}
