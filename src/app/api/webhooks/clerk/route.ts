@@ -56,42 +56,38 @@ export async function POST(req: Request) {
 
     // 事件：用户创建
     if (eventType === 'user.created') {
-        const { id, email_addresses, first_name, last_name, image_url } = evt.data;
+        const { id, email_addresses, first_name, last_name, image_url, public_metadata } = evt.data;
 
-        // Clerk 保证了 email_addresses[0] 存在
         const email = email_addresses[0].email_address;
         const username = `${first_name || ''} ${last_name || ''}`.trim() || email.split('@')[0];
 
-        // 使用 Kysely 将新用户插入数据库
         await db.insertInto('users')
             .values({
                 clerk_id: id,
                 email: email,
                 username: username,
                 avatar_url: image_url,
-                // is_verified 将在邮箱验证后由另一个事件更新
+                // 新用户默认为 'User' 角色，或从 metadata 中获取
+                role: (public_metadata.role as string) || 'User',
             })
             .execute();
-
-        console.log(`Created user ${id} in local database.`);
     }
 
     // 事件：用户更新
     if (eventType === 'user.updated') {
-        const { id, first_name, last_name, image_url } = evt.data;
+        const { id, first_name, last_name, image_url, public_metadata } = evt.data;
 
         const username = `${first_name || ''} ${last_name || ''}`.trim();
 
-        // 使用 Kysely 更新用户信息
         await db.updateTable('users')
             .set({
                 username: username,
                 avatar_url: image_url,
+                // 当 public_metadata 变化时，同步 role 字段
+                role: (public_metadata.role as string) || 'User',
             })
             .where('clerk_id', '=', id)
             .execute();
-
-        console.log(`Updated user ${id} in local database.`);
     }
 
     // 事件：用户删除

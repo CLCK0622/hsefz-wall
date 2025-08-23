@@ -1,51 +1,82 @@
 // app/page.tsx
-import { auth } from "@clerk/nextjs/server";
+import { auth } from '@clerk/nextjs/server';
 import { db } from "@/lib/db";
+import { sql } from 'kysely';
 import Header from "@/components/Header/Header";
-import styles from './page.module.scss';
+import { CreatePostForm } from "@/components/CreatePostForm/CreatePostForm";
+import { PostFeed } from "@/components/PostFeed/PostFeed";
+import { Container, Loader, Group, Text } from '@mantine/core';
+import { ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
+import { PostWithDetails } from "@/components/PostCard/PostCard";
 
 export default async function HomePage() {
-  const { userId } = await auth();
+    const { userId: clerkId, sessionClaims } = await auth();
 
-  if (!userId) {
-    // 理论上中间件会处理，但作为双重保险
-    // redirect('/sign-in');
-    return null;
-  }
+    const currentUser = clerkId ? await db.selectFrom('users').select('id').where('clerk_id', '=', clerkId).executeTakeFirst() : null;
+    const currentUserId = currentUser?.id;
+    const currentUserRole = (sessionClaims?.metadata as { role?: string })?.role as string | undefined;
 
-  // 从数据库获取帖子
-  // 使用 ORDER BY is_announcement DESC 可以让公告排在最前面
-  // 然后再按创建时间倒序排列
-  const posts = await db
-      .selectFrom('posts')
-      .selectAll()
-      .orderBy('is_announcement', 'desc')
-      .orderBy('created_at', 'desc')
-      .limit(50) // 先简单做个分页
-      .execute();
+    const posts = await db.selectFrom('posts')
+        .innerJoin('users', 'users.id', 'posts.user_id')
+        .select([
+            'posts.id', 'posts.content', 'posts.created_at', 'posts.is_anonymous', 'posts.user_id',
+            'posts.is_announcement', 'users.username', 'users.avatar_url',
+        ])
+        .select((eb) => [
+            // Image aggregation remains the same
+            sql<string[]>`(SELECT array_agg(pi.image_url) FROM post_images pi WHERE pi.post_id = posts.id)`.as('images'),
 
-  return (
-      <>
-        <Header />
-        <main className={styles.main}>
-          <div className={styles.feed}>
-            {/* TODO: 帖子发布组件 */}
+            // --- REVISED SUBQUERIES ---
+            // Subquery to count likes
+            sql<number>`(SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id)`.as('like_count'),
 
-            <div className={styles.postList}>
-              {posts.length > 0 ? (
-                  posts.map((post) => (
-                      <div key={post.id} className={styles.postCard}>
-                        {post.is_announcement && <span className={styles.announcementTag}>公告</span>}
-                        <p>{post.content}</p>
-                        <small>发布于: {new Date(post.created_at).toLocaleString()}</small>
-                      </div>
-                  ))
-              ) : (
-                  <p>还没有人发布内容，快来抢占第一个吧！</p>
-              )}
-            </div>
-          </div>
-        </main>
-      </>
-  );
+            // Subquery to count comments
+            sql<number>`(SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id)`.as('comment_count'),
+
+            // Subquery to check if the current user has liked the post (using EXISTS is efficient)
+            sql<boolean>`(
+        EXISTS (
+          SELECT 1 FROM likes 
+          WHERE likes.post_id = posts.id AND likes.user_id = ${currentUserId}
+        )
+      )`.as('has_liked')
+        ])
+        .orderBy('posts.is_announcement', 'desc')
+        .orderBy('posts.created_at', 'desc')
+        .limit(50)
+        .execute();
+
+    const formattedPosts: PostWithDetails[] = posts.map(p => ({
+        id: p.id,
+        content: p.content,
+        created_at: p.created_at,
+        is_anonymous: p.is_anonymous,
+        is_announcement: p.is_announcement,
+        user: { username: p.username, avatar_url: p.avatar_url },
+        images: p.images ? p.images.map((url: string) => ({ image_url: url })) : [],
+        // Coerce types, as COUNT(*) can be a string and EXISTS can be null if user not logged in
+        like_count: Number(p.like_count) || 0,
+        comment_count: Number(p.comment_count) || 0,
+        has_liked: !!p.has_liked,
+        user_id: p.user_id,
+    }));
+
+    return (
+        <>
+            <Header />
+            <Container my="md">
+                <ClerkLoaded>
+                    <CreatePostForm />
+                    {formattedPosts.length > 0 ? (
+                        <PostFeed posts={formattedPosts} currentUserId={currentUserId} currentUserRole={currentUserRole} />
+                    ) : (
+                        <Text c="dimmed" ta="center" mt="xl">还没有人发布内容，快来抢占第一个吧！</Text>
+                    )}
+                </ClerkLoaded>
+                <ClerkLoading>
+                    <Group justify="center" mt="xl"><Loader /></Group>
+                </ClerkLoading>
+            </Container>
+        </>
+    );
 }

@@ -1,0 +1,25 @@
+/* components/PostFeed/PostFeed.module.scss */
+
+.masonryContainer {
+    /* 定义列数和列间距 */
+    column-gap: var(--mantine-spacing-lg);
+
+    /* 默认（手机端）显示 2 列 */
+    column-count: 2;
+
+    /* 在大屏幕上（lg 断点及以上）显示 3 列 */
+    @media (min-width: 768px) {
+        column-count: 3;
+    }
+
+    @media (min-width: 1200px) {
+        column-count: 4;
+    }
+}
+
+.masonryItem {
+    /* 这是最重要的部分：防止卡片在跨列时被切断 */
+    break-inside: avoid;
+    /* 为卡片底部添加一些间距 */
+    margin-bottom: var(--mantine-spacing-lg);
+}

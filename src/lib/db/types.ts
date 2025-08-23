@@ -54,6 +54,7 @@ export interface Posts {
   created_at: Generated<Timestamp>;
   id: Generated<number>;
   is_announcement: Generated<boolean>;
+  is_anonymous: Generated<boolean>;
   updated_at: Generated<Timestamp>;
   user_id: number;
 }

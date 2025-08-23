@@ -14,7 +14,14 @@
   "dependencies": {
     "@clerk/localizations": "^3.20.9",
     "@clerk/nextjs": "^6.30.1",
+    "@mantine/core": "^8.2.4",
+    "@mantine/form": "^8.2.4",
+    "@mantine/hooks": "^8.2.4",
+    "@mantine/modals": "^8.2.4",
+    "@mantine/notifications": "^8.2.4",
+    "@tabler/icons-react": "^3.34.1",
     "@vercel/blob": "^1.1.1",
+    "clerk": "^0.8.3",
     "kysely": "^0.28.5",
     "next": "15.4.6",
     "node-pg-migrate": "^8.0.3",
@@ -22,7 +29,8 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "sass": "^1.90.0",
-    "svix": "^1.71.0"
+    "svix": "^1.71.0",
+    "vercel": "^44.7.3"
   },
   "devDependencies": {
     "@types/node": "^20",

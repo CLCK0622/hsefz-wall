@@ -1,0 +1,65 @@
+// components/CreatePostForm/CreatePostForm.module.scss
+.form {
+    background-color: #fff;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    font-family: inherit;
+}
+
+.previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.previewImage {
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fileLabel {
+    cursor: pointer;
+    color: #0095f6;
+    font-weight: 600;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.submitButton {
+    background-color: #0095f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:disabled {
+        background-color: #b2dffc;
+        cursor: not-allowed;
+    }
+}
+
+.error {
+    color: #ed4956;
+    margin-top: 10px;
+}
