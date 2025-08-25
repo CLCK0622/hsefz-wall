@@ -2,23 +2,34 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from 'next/server';
 
+const isPublicRoute = createRouteMatcher([
+    '/sign-in(.*)',
+    '/sign-up(.*)',
+    '/api/webhooks/clerk'
+]);
+
 const isAdminRoute = createRouteMatcher(['/admin(.*)']);
 const isSuperAdminRoute = createRouteMatcher(['/admin/users(.*)']);
 
-// 1. Remove the 'async' keyword here
-export default clerkMiddleware((auth, req) => {
-    // 2. Access sessionClaims directly from the auth object without await
-    const { sessionClaims } = auth;
+export default clerkMiddleware(async (auth, req) => {
+    if (isPublicRoute(req)) {
+        return NextResponse.next();
+    }
+
+    // 1. To PROTECT a route, call the .protect() method on the auth object.
+    // This will handle redirecting unauthenticated users.
+    await auth.protect();
+
+    // 2. To GET USER DATA, call the auth object as a function.
+    const { sessionClaims } = await auth();
     const userRole = (sessionClaims?.metadata as { role?: string })?.role;
 
-    // The rest of your logic is correct
-    // 保护 SuperAdmin 路由
+    // 3. Now perform the role checks on the authenticated user.
     if (isSuperAdminRoute(req) && userRole !== 'SuperAdmin') {
         const homeUrl = new URL('/', req.url);
         return NextResponse.redirect(homeUrl);
     }
 
-    // 保护 Admin 路由
     if (isAdminRoute(req) && userRole !== 'Admin' && userRole !== 'SuperAdmin') {
         const homeUrl = new URL('/', req.url);
         return NextResponse.redirect(homeUrl);
