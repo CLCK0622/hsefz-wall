@@ -1,12 +1,13 @@
-// components/Header/Header.module.scss
+/* components/Header/Header.module.scss */
+
 .header {
     background-color: #fff;
-    border-bottom: 1px solid #dbdbdb;
-    padding: 0 20px;
+    border-bottom: 1px solid var(--mantine-color-gray-3); // 使用 Mantine 的颜色变量
+    padding: 0 var(--mantine-spacing-md); // 使用 Mantine 的间距变量
     height: 60px;
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 1001; // 确保在 Modal 之上
 }
 
 .container {
@@ -22,9 +23,5 @@
     font-weight: bold;
     font-size: 1.5rem;
     text-decoration: none;
-    color: #262626;
-}
-
-.userSection {
-    // UserButton has its own styling, we can just align it
+    color: var(--mantine-color-dark-9);
 }

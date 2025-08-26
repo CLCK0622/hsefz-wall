@@ -3,6 +3,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { db } from './db';
 import { revalidatePath } from 'next/cache';
+import {z} from "zod";
 
 async function getCurrentUser() {
     const { userId: clerkId, sessionClaims } = await auth();
@@ -75,4 +76,49 @@ export async function reportAction(args: { contentId: number; contentType: 'post
             reason: reason.trim(),
         })
         .execute();
+}
+
+const updatePostSchema = z.object({
+    postId: z.number(),
+    content: z.string().min(1, '内容不能为空').max(1000, '内容不能超过1000字'),
+    is_anonymous: z.boolean(),
+});
+
+export async function updatePostAction(formData: FormData) {
+    const currentUser = await getCurrentUser();
+
+    // 1. 使用 Zod 解析和校验表单数据
+    const validation = updatePostSchema.safeParse({
+        postId: Number(formData.get('postId')),
+        content: formData.get('content'),
+        is_anonymous: formData.get('is_anonymous') === 'true',
+    });
+
+    if (!validation.success) {
+        throw new Error(validation.error.issues[0].message);
+    }
+
+    const { postId, content, is_anonymous } = validation.data;
+
+    // 2. 验证帖子是否存在且属于当前用户
+    const post = await db.selectFrom('posts')
+        .select('user_id')
+        .where('id', '=', postId)
+        .executeTakeFirst();
+
+    if (!post) throw new Error('帖子不存在');
+    if (post.user_id !== currentUser.id) throw new Error('无权编辑');
+
+    // 3. 更新数据库
+    await db.updateTable('posts')
+        .set({
+            content,
+            is_anonymous,
+            updated_at: new Date(), // 更新时间戳
+        })
+        .where('id', '=', postId)
+        .execute();
+
+    // 4. 刷新主页缓存，让更改立刻生效
+    revalidatePath('/');
 }

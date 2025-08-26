@@ -5,6 +5,7 @@ import { MantineProvider, ColorSchemeScript } from '@mantine/core';
 import '@mantine/core/styles.css'; // 必须引入 Mantine CSS
 import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
+import Header from "@/components/Header/Header";
 
 export const metadata = {
     title: 'HSEFZ 校园墙',
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {/* 👇 Wrap with ModalsProvider */}
                 <ModalsProvider>
                     <Notifications />
+                    <Header />
                     {children}
                 </ModalsProvider>
             </MantineProvider>

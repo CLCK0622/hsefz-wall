@@ -63,7 +63,6 @@ export default async function HomePage() {
 
     return (
         <>
-            <Header />
             <Container my="md">
                 <ClerkLoaded>
                     <CreatePostForm />

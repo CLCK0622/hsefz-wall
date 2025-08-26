@@ -24,17 +24,22 @@ export default clerkMiddleware(async (auth, req) => {
     const { sessionClaims } = await auth();
     const userRole = (sessionClaims?.metadata as { role?: string })?.role;
 
+    console.log(`[Middleware] Path: ${req.nextUrl.pathname}, User Role: ${userRole}`);
+
     // 3. Now perform the role checks on the authenticated user.
     if (isSuperAdminRoute(req) && userRole !== 'SuperAdmin') {
+        console.log(`[Middleware] Access DENIED to SuperAdmin route. Role was: ${userRole}`);
         const homeUrl = new URL('/', req.url);
         return NextResponse.redirect(homeUrl);
     }
 
     if (isAdminRoute(req) && userRole !== 'Admin' && userRole !== 'SuperAdmin') {
+        console.log(`[Middleware] Access DENIED to Admin route. Role was: ${userRole}`);
         const homeUrl = new URL('/', req.url);
         return NextResponse.redirect(homeUrl);
     }
 
+    console.log(`[Middleware] Access GRANTED to ${req.nextUrl.pathname}`);
     return NextResponse.next();
 });
 
