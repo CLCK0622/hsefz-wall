@@ -1,10 +1,11 @@
 // components/PostCard/PostCard.tsx
-import { Card, Text, Avatar, Group, Box } from '@mantine/core';
-import { IconUserCircle } from '@tabler/icons-react';
-import { ActionIcon, Flex } from '@mantine/core';
-import { IconHeart, IconHeartFilled, IconMessageCircle } from '@tabler/icons-react';
-import { toggleLikeAction } from '@/lib/social-actions';
+'use client'; // 1. 添加 'use client' 因为我们使用了 hook
+
+import {Card, Text, Avatar, Group, Box, ActionIcon, Flex} from '@mantine/core';
+import {IconUserCircle, IconHeart, IconHeartFilled, IconMessageCircle} from '@tabler/icons-react';
+import {toggleLikeAction} from '@/lib/social-actions';
 import React from "react";
+import {useMediaQuery} from '@mantine/hooks'; // 2. 导入 useMediaQuery hook
 
 // 定义一个完整的帖子数据类型，这很重要
 export type PostWithDetails = {
@@ -12,7 +13,7 @@ export type PostWithDetails = {
     content: string;
     created_at: Date;
     is_anonymous: boolean;
-    is_announcement: boolean; // Add this line
+    is_announcement: boolean;
     user: {
         username: string;
         avatar_url: string | null;
@@ -23,60 +24,82 @@ export type PostWithDetails = {
     like_count: number;
     comment_count: number;
     has_liked: boolean;
-    user_id: number; // The post author's ID from our own DB
+    user_id: number;
 };
 
 interface PostCardProps {
     post: PostWithDetails;
     onClick: () => void;
-    className?: string; // 1. 添加 className 属性
+    className?: string;
 }
 
-export function PostCard({ post, onClick, className }: PostCardProps) {
+export function PostCard({post, onClick, className}: PostCardProps) {
+    // 3. 使用 hook 判断是否为移动端视图
+    const isMobile = useMediaQuery('(max-width: 576px)'); // Mantine sm 断点
+
     const authorName = post.is_anonymous ? '匿名用户' : post.user?.username || '未知用户';
     const authorAvatar = post.is_anonymous ? null : post.user?.avatar_url;
 
     const handleLikeClick = (e: React.MouseEvent) => {
-        e.stopPropagation(); // Prevent the modal from opening when clicking the heart
-        // We use startTransition for optimistic updates in the future if needed
+        e.stopPropagation();
         React.startTransition(() => {
             toggleLikeAction(post.id);
         });
     }
 
     return (
-        <Card className={className} shadow="sm" padding="md" radius="md" withBorder onClick={onClick} style={{ cursor: 'pointer' }}>
+        <Card className={className} shadow="sm" padding="md" radius="md" withBorder onClick={onClick}
+              style={{cursor: 'pointer'}}>
             {post.images.length > 0 && (
-                <Card.Section>
-                    <img
-                        src={post.images[0].image_url}
-                        alt="Post image"
-                        style={{ width: '100%', maxHeight: '450px', objectFit: 'cover' }}
-                    />
-                </Card.Section>
+                    <Card.Section mb="md">
+                        <img
+                            src={post.images[0].image_url}
+                            alt="Post image"
+                            style={{width: '100%', maxHeight: '450px', objectFit: 'cover'}}
+                        />
+                    </Card.Section>
             )}
 
-            <Box mt="md">
+            <Box>
                 <Text lineClamp={3} size="sm">{post.content}</Text>
             </Box>
 
-            <Flex justify="space-between" align="center" mt="md">
-                <Group gap="xs">
+            <Flex justify="space-between" align="center" mt="md" gap="md">
+                {/* 左侧用户区域 */}
+                <Group gap="xs" wrap="nowrap" style={{overflow: 'hidden'}}>
                     <Avatar src={authorAvatar} radius="xl" size="sm">
-                        {!authorAvatar && <IconUserCircle />}
+                        {!authorAvatar && <IconUserCircle/>}
                     </Avatar>
-                    <Text size="xs" c="dimmed">{authorName}</Text>
+                    {/* 4. 给用户名 Text 添加内联样式实现省略号效果 */}
+                    <Text
+                        size="xs"
+                        c="dimmed"
+                        style={{
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                        }}
+                    >
+                        {authorName}
+                    </Text>
                 </Group>
 
-                <Group gap={2}>
+                {/* 右侧点赞/评论区域 */}
+                <Group gap={4} wrap="nowrap">
                     <ActionIcon variant="subtle" color="gray" onClick={handleLikeClick}>
-                        {post.has_liked ? <IconHeartFilled style={{ color: 'red' }}/> : <IconHeart />}
+                        {post.has_liked ? <IconHeartFilled style={{color: 'red'}}/> : <IconHeart/>}
                     </ActionIcon>
                     <Text size="sm">{post.like_count}</Text>
-                    <ActionIcon variant="subtle" color="gray" style={{ cursor: 'default' }}>
-                        <IconMessageCircle />
-                    </ActionIcon>
-                    <Text size="sm">{post.comment_count}</Text>
+
+                    {/* 5. 仅在非移动端显示评论图标和数量 */}
+                    {!isMobile && (
+                        <>
+                            <ActionIcon variant="subtle" color="gray" style={{cursor: 'default', marginLeft: '8px'}}>
+                                <IconMessageCircle/>
+                            </ActionIcon>
+                            <Text size="sm">{post.comment_count}</Text>
+                        </>
+                    )}
                 </Group>
             </Flex>
         </Card>
