@@ -26,7 +26,7 @@ export default function Header() {
     return (
         <header className={styles.header}>
             <div className={styles.container}>
-                <Link href="/" className={styles.logo}>HSEFZ 校园墙</Link>
+                <Link href="/" className={styles.logo}>张江多功能墙</Link>
                 <Group>
                     <Menu shadow="md" width={220} withArrow position="bottom-end">
                         <Menu.Target>

@@ -60,6 +60,7 @@ function ActionMenu({isOwner, isAdmin, onDelete, onReport, onEdit}: ActionMenuPr
         labels: {confirm: '确认删除', cancel: '取消'},
         confirmProps: {color: 'red'},
         onConfirm: onDelete,
+        zIndex: 4000,
     });
 
     return (

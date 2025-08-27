@@ -1,0 +1,16 @@
+/* components/Footer/Footer.module.scss */
+
+.footer {
+    margin-top: calc(var(--mantine-spacing-xl) * 2); // 与上方内容保持较大间距
+    background-color: var(--mantine-color-gray-0); // 使用 Mantine 的浅灰色背景
+    border-top: 1px solid var(--mantine-color-gray-2);
+}
+
+.inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--mantine-spacing-xl);
+    padding-bottom: var(--mantine-spacing-xl);
+    flex-direction: column;
+}
