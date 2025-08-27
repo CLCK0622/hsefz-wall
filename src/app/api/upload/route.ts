@@ -19,6 +19,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     // 这里的 blob 就是上传后的文件信息，包含了 url
     const blob = await put(filename, request.body, {
         access: 'public',
+        allowOverwrite: true,
     });
 
     return NextResponse.json(blob);
