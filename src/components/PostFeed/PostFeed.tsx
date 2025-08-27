@@ -63,7 +63,7 @@ function ActionMenu({isOwner, isAdmin, onDelete, onReport, onEdit}: ActionMenuPr
     });
 
     return (
-        <Menu shadow="md" width={200} position="bottom-end" withArrow>
+        <Menu shadow="md" width={200} position="bottom-end" withArrow zIndex={2100}>
             <Menu.Target>
                 <ActionIcon variant="subtle" color="gray"><IconDotsVertical size="1rem"/></ActionIcon>
             </Menu.Target>
@@ -279,33 +279,46 @@ export function PostFeed({posts, currentUserId, currentUserRole}: {
 
     return (
         <>
-            <Modal opened={opened} onClose={handleClose} size="85%" fullScreen={isMobile} centered
-                   withCloseButton={false} padding={0} styles={{body: {height: '100%'}}}>
+            <Modal opened={opened} onClose={handleClose} size="85%" fullScreen={isMobile} centered withCloseButton={false} padding={0} zIndex={2000} styles={{ body: { height: '100%' } }}>
                 {selectedPost && (
                     isMobile ? (
-                        <Box style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
-                            <ScrollArea style={{flex: 1}}>
-                                <PostContentView post={selectedPost} actionMenu={postActionMenu}/>
+                        // --- 移动端全新布局 ---
+                        <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                            {/* 1. 固定的头部 */}
+                            <Group justify='space-between' p='xs' style={{ borderBottom: '1px solid #dee2e6' }}>
+                                <Text fw={500}>帖子详情</Text>
+                                <ActionIcon onClick={handleClose} variant='subtle'><IconX /></ActionIcon>
+                            </Group>
+                            {/* 2. 可伸缩、可滚动的内容区 */}
+                            <Box style={{ flex: 1, overflowY: 'auto' }}>
+                                <PostContentView post={selectedPost} actionMenu={postActionMenu} />
                                 {commentsList}
-                            </ScrollArea>
-                            <CommentInput onSubmit={handleAddComment}/>
+                            </Box>
+                            {/* 3. 固定的底部输入框 */}
+                            <CommentInput onSubmit={handleAddComment} />
                         </Box>
                     ) : (
-                        <Grid gutter={0} style={{height: '100%', maxHeight: '88vh'}}>
-                            <Grid.Col span={7} style={{borderRight: '1px solid #dee2e6'}}>
-                                <ScrollArea h="100%">
-                                    <PostContentView post={selectedPost} actionMenu={postActionMenu}/>
-                                </ScrollArea>
-                            </Grid.Col>
-                            <Grid.Col span={5} style={{display: 'flex', flexDirection: 'column'}}>
-                                <Group justify='space-between' p='sm' style={{borderBottom: '1px solid #dee2e6'}}>
+                        // --- 桌面端全新布局 (用 Box 代替 Grid) ---
+                        <Box style={{ display: 'flex', height: '100%', maxHeight: '88vh', minHeight: '50vh' }}>
+                            {/* 左侧栏 */}
+                            <Box style={{ flex: 7, borderRight: '1px solid #dee2e6', overflowY: 'auto' }}>
+                                <PostContentView post={selectedPost} actionMenu={postActionMenu} />
+                            </Box>
+                            {/* 右侧栏 */}
+                            <Box style={{ flex: 5, display: 'flex', flexDirection: 'column' }}>
+                                {/* 1. 固定的头部 */}
+                                <Group justify='space-between' p='sm' style={{ borderBottom: '1px solid #dee2e6' }}>
                                     <Text fw={500}>评论 ({comments.length})</Text>
-                                    <ActionIcon onClick={handleClose} variant='subtle'><IconX/></ActionIcon>
+                                    <ActionIcon onClick={handleClose} variant='subtle'><IconX /></ActionIcon>
                                 </Group>
-                                <ScrollArea style={{flex: 1}}>{commentsList}</ScrollArea>
-                                <CommentInput onSubmit={handleAddComment}/>
-                            </Grid.Col>
-                        </Grid>
+                                {/* 2. 可伸缩、可滚动的内容区 */}
+                                <Box style={{ flex: 1, overflowY: 'auto' }}>
+                                    {commentsList}
+                                </Box>
+                                {/* 3. 固定的底部输入框 */}
+                                <CommentInput onSubmit={handleAddComment} />
+                            </Box>
+                        </Box>
                     )
                 )}
             </Modal>
