@@ -218,6 +218,8 @@ export function PostFeed({posts, currentUserId, currentUserRole}: {
             children: (<Textarea placeholder="请输入举报原因..." label="举报原因" withAsterisk
                                  onChange={(e) => reason = e.currentTarget.value}/>),
             labels: {confirm: '提交举报', cancel: '取消'},
+            centered: true,
+            zIndex: 3500,
             onConfirm: () => reportAction({contentId, contentType, reason}),
         });
     }
