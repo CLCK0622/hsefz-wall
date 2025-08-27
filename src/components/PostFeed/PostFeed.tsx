@@ -226,6 +226,8 @@ export function PostFeed({posts, currentUserId, currentUserRole}: {
         modals.open({
             title: '编辑帖子',
             centered: true,
+            zIndex: 3500,
+            size: 'lg',
             children: <EditPostForm post={post} />,
         });
     };
