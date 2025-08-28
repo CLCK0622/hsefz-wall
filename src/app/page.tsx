@@ -65,7 +65,7 @@ export default async function HomePage() {
         <>
             <Container my="md">
                 <ClerkLoaded>
-                    <CreatePostForm />
+                    <CreatePostForm userRole={currentUserRole} />
                     {formattedPosts.length > 0 ? (
                         <PostFeed posts={formattedPosts} currentUserId={currentUserId} currentUserRole={currentUserRole} />
                     ) : (

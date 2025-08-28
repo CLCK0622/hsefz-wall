@@ -82,23 +82,30 @@ const updatePostSchema = z.object({
     postId: z.number(),
     content: z.string().min(1, '内容不能为空').max(1000, '内容不能超过1000字'),
     is_anonymous: z.boolean(),
+    is_announcement: z.boolean(), // <-- 新增字段
 });
 
 export async function updatePostAction(formData: FormData) {
     const currentUser = await getCurrentUser();
 
-    // 1. 使用 Zod 解析和校验表单数据
+    // --- 权限校验 ---
+    if (formData.get('is_announcement') === 'true' && !currentUser.isAdmin) {
+        throw new Error('无权设置公告');
+    }
+    // ----------------
+
     const validation = updatePostSchema.safeParse({
         postId: Number(formData.get('postId')),
         content: formData.get('content'),
         is_anonymous: formData.get('is_anonymous') === 'true',
+        is_announcement: formData.get('is_announcement') === 'true', // <-- 新增字段
     });
 
     if (!validation.success) {
         throw new Error(validation.error.issues[0].message);
     }
 
-    const { postId, content, is_anonymous } = validation.data;
+    const { postId, content, is_anonymous, is_announcement } = validation.data;
 
     // 2. 验证帖子是否存在且属于当前用户
     const post = await db.selectFrom('posts')
@@ -114,11 +121,11 @@ export async function updatePostAction(formData: FormData) {
         .set({
             content,
             is_anonymous,
-            updated_at: new Date(), // 更新时间戳
+            is_announcement, // <-- 更新字段
+            updated_at: new Date(),
         })
         .where('id', '=', postId)
         .execute();
 
-    // 4. 刷新主页缓存，让更改立刻生效
     revalidatePath('/');
 }

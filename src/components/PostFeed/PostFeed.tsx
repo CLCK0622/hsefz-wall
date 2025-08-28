@@ -230,7 +230,7 @@ export function PostFeed({posts, currentUserId, currentUserRole}: {
             centered: true,
             zIndex: 3500,
             size: 'lg',
-            children: <EditPostForm post={post} />,
+            children: <EditPostForm post={post} userRole={currentUserRole} />,
         });
     };
 

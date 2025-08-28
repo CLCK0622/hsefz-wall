@@ -10,10 +10,13 @@ import { updatePostAction } from '@/lib/moderation-actions';
 
 interface EditPostFormProps {
     post: PostWithDetails;
+    userRole?: string;
 }
 
-export function EditPostForm({ post }: EditPostFormProps) {
+export function EditPostForm({ post, userRole }: EditPostFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const isAdmin = userRole === 'Admin' || userRole === 'SuperAdmin';
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -42,6 +45,14 @@ export function EditPostForm({ post }: EditPostFormProps) {
                     autosize
                     minRows={5}
                 />
+                {isAdmin && (
+                    <Checkbox
+                        name="is_announcement"
+                        label="设置为公告"
+                        defaultChecked={post.is_announcement}
+                        value="true"
+                    />
+                )}
                 <Checkbox
                     name="is_anonymous"
                     label="匿名发布"

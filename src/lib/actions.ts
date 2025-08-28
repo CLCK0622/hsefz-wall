@@ -1,26 +1,23 @@
-// lib/actions.ts
 'use server';
 
 import { auth } from '@clerk/nextjs/server';
 import { db } from './db';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 
-// 定义一个类型，让数据传递更清晰
 interface CreatePostInput {
     content: string;
     imageUrls: string[];
-    is_anonymous: boolean; // 新增字段
+    is_anonymous: boolean;
+    is_announcement: boolean; // <-- 新增字段
 }
 
 export async function createPost(input: CreatePostInput) {
-    const { userId: clerkId } = await auth();
+    const { userId: clerkId, sessionClaims } = await auth(); // <-- 获取 sessionClaims
 
     if (!clerkId) {
         throw new Error('用户未登录');
     }
 
-    // 1. 从我们自己的数据库中查找用户
     const user = await db.selectFrom('users')
         .select('id')
         .where('clerk_id', '=', clerkId)
@@ -30,14 +27,24 @@ export async function createPost(input: CreatePostInput) {
         throw new Error('用户不存在于数据库中');
     }
 
-    const { content, imageUrls, is_anonymous } = input; // 解构新字段
+    const { content, imageUrls, is_anonymous, is_announcement } = input;
+
+    // --- 权限校验 ---
+    const userRole = (sessionClaims?.metadata as { role?: string })?.role;
+    const isAdmin = userRole === 'Admin' || userRole === 'SuperAdmin';
+    if (is_announcement && !isAdmin) {
+        // 如果尝试发布公告但不是管理员，则抛出错误
+        throw new Error('无权发布公告');
+    }
+    // ----------------
 
     const result = await db.transaction().execute(async (trx) => {
         const newPost = await trx.insertInto('posts')
             .values({
                 user_id: user.id,
                 content: content,
-                is_anonymous: is_anonymous, // 存入新字段
+                is_anonymous: is_anonymous,
+                is_announcement: is_announcement, // <-- 存入新字段
             })
             .returning('id')
             .executeTakeFirstOrThrow();

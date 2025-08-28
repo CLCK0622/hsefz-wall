@@ -60,11 +60,13 @@ export function PostCard({post, onClick, className}: PostCardProps) {
                     </Card.Section>
             )}
 
-            <Box>
-                <Text lineClamp={3} size="sm">{post.content}</Text>
-            </Box>
+            {post.content.length > 0 && (
+                <Box mb="md">
+                    <Text lineClamp={3} size="sm">{post.content}</Text>
+                </Box>
+            )}
 
-            <Flex justify="space-between" align="center" mt="md" gap="md">
+            <Flex justify="space-between" align="center" gap="md">
                 {/* 左侧用户区域 */}
                 <Group gap="xs" wrap="nowrap" style={{overflow: 'hidden'}}>
                     <Avatar src={authorAvatar} radius="xl" size="sm">
