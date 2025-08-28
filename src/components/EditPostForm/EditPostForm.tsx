@@ -1,7 +1,7 @@
 // components/EditPostForm.tsx
 'use client';
 
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { PostWithDetails } from '../PostCard/PostCard';
 import { Textarea, Checkbox, Group, Button, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -15,8 +15,16 @@ interface EditPostFormProps {
 
 export function EditPostForm({ post, userRole }: EditPostFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isAnonymous, setIsAnonymous] = useState(post.is_anonymous);
+    const [isAnnouncement, setIsAnnouncement] = useState(post.is_announcement);
 
     const isAdmin = userRole === 'Admin' || userRole === 'SuperAdmin';
+
+    useEffect(() => {
+        if (isAnnouncement) {
+            setIsAnonymous(true);
+        }
+    }, [isAnnouncement]);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -49,15 +57,18 @@ export function EditPostForm({ post, userRole }: EditPostFormProps) {
                     <Checkbox
                         name="is_announcement"
                         label="设置为公告"
-                        defaultChecked={post.is_announcement}
+                        checked={isAnnouncement} // <-- 使用 state
+                        onChange={(e) => setIsAnnouncement(e.currentTarget.checked)} // <-- 使用 state
                         value="true"
                     />
                 )}
                 <Checkbox
                     name="is_anonymous"
                     label="匿名发布"
-                    defaultChecked={post.is_anonymous}
+                    checked={isAnonymous} // <-- 使用 state
+                    onChange={(e) => setIsAnonymous(e.currentTarget.checked)} // <-- 使用 state
                     value="true"
+                    disabled={isAnnouncement} // <-- 如果是公告，则禁用
                 />
                 <Group justify="flex-end" mt="md">
                     <Button variant="default" onClick={() => modals.closeAll()}>取消</Button>

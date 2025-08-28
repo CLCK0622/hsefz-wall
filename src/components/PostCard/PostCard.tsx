@@ -1,7 +1,7 @@
 // components/PostCard/PostCard.tsx
 'use client'; // 1. 添加 'use client' 因为我们使用了 hook
 
-import {Card, Text, Avatar, Group, Box, ActionIcon, Flex} from '@mantine/core';
+import {Card, Text, Avatar, Group, Box, ActionIcon, Flex, Badge} from '@mantine/core';
 import {IconUserCircle, IconHeart, IconHeartFilled, IconMessageCircle} from '@tabler/icons-react';
 import {toggleLikeAction} from '@/lib/social-actions';
 import React from "react";
@@ -62,7 +62,7 @@ export function PostCard({post, onClick, className}: PostCardProps) {
 
             {post.content.length > 0 && (
                 <Box mb="md">
-                    <Text lineClamp={3} size="sm">{post.content}</Text>
+                    {post.is_announcement && <Badge color="yellow" mb="md">公告</Badge>}<Text lineClamp={3} size="sm">{post.content}</Text>
                 </Box>
             )}
 

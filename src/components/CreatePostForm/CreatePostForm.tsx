@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {createPost} from '@/lib/actions';
 import {
     Textarea,
@@ -24,6 +24,12 @@ export function CreatePostForm({ userRole }: { userRole?: string }) {
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isAnnouncement, setIsAnnouncement] = useState(false);
+
+    useEffect(() => {
+        if (isAnnouncement) {
+            setIsAnonymous(true);
+        }
+    }, [isAnnouncement]);
 
     const isAdmin = userRole === 'Admin' || userRole === 'SuperAdmin';
 
@@ -141,7 +147,7 @@ export function CreatePostForm({ userRole }: { userRole?: string }) {
                             onChange={(event) => setIsAnnouncement(event.currentTarget.checked)}
                         />
                     )}
-                    <Checkbox label="匿名发布" checked={isAnonymous}
+                    <Checkbox label="匿名发布" checked={isAnonymous} disabled={isAnnouncement}
                               onChange={(event) => setIsAnonymous(event.currentTarget.checked)}/>
                     <Button type="submit" loading={isSubmitting}>发布</Button>
                 </Group>

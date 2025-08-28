@@ -105,7 +105,11 @@ export async function updatePostAction(formData: FormData) {
         throw new Error(validation.error.issues[0].message);
     }
 
-    const { postId, content, is_anonymous, is_announcement } = validation.data;
+    let { postId, content, is_anonymous, is_announcement } = validation.data;
+
+    if (is_announcement) {
+        is_anonymous = true;
+    }
 
     // 2. 验证帖子是否存在且属于当前用户
     const post = await db.selectFrom('posts')

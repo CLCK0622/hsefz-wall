@@ -27,7 +27,11 @@ export async function createPost(input: CreatePostInput) {
         throw new Error('用户不存在于数据库中');
     }
 
-    const { content, imageUrls, is_anonymous, is_announcement } = input;
+    let { content, imageUrls, is_anonymous, is_announcement } = input;
+
+    if (is_announcement) {
+        is_anonymous = true;
+    }
 
     // --- 权限校验 ---
     const userRole = (sessionClaims?.metadata as { role?: string })?.role;
