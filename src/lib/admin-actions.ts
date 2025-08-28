@@ -1,12 +1,12 @@
-// lib/admin-actions.ts
+
 'use server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
-import { db } from '@/lib/db'; // 确保导入了 db
+import { db } from '@/lib/db';
 
 export async function updateUserRoleAction(formData: FormData) {
     const { sessionClaims } = await auth();
-    // 修正：使用类型断言
+
     const userRole = (sessionClaims?.metadata as { role?: string })?.role;
 
     if (userRole !== 'SuperAdmin') {
@@ -20,7 +20,6 @@ export async function updateUserRoleAction(formData: FormData) {
         throw new Error('缺少参数');
     }
 
-    // 修正：调用 clerkClient()
     await (await clerkClient()).users.updateUserMetadata(targetUserId, {
         publicMetadata: {
             role: newRole
