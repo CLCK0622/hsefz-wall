@@ -49,10 +49,10 @@ interface ActionMenuProps {
     isAdmin: boolean;
     onDelete: () => void;
     onReport: () => void;
-    onEdit: () => void; // 未来可以添加
+    onEdit?: () => void;
 }
 
-function ActionMenu({isOwner, isAdmin, onDelete, onReport, onEdit}: ActionMenuProps) {
+function ActionMenu({ isOwner, isAdmin, onDelete, onReport, onEdit }: ActionMenuProps) {
     const openDeleteModal = () => modals.openConfirmModal({
         title: '确认删除',
         centered: true,
@@ -66,25 +66,33 @@ function ActionMenu({isOwner, isAdmin, onDelete, onReport, onEdit}: ActionMenuPr
     return (
         <Menu shadow="md" width={200} position="bottom-end" withArrow zIndex={2100}>
             <Menu.Target>
-                <ActionIcon variant="subtle" color="gray"><IconDotsVertical size="1rem"/></ActionIcon>
+                <ActionIcon variant="subtle" color="gray"><IconDotsVertical size="1rem" /></ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
-                {isOwner && (
-                    <>
-                        <Menu.Item leftSection={<IconEdit style={{width: rem(14), height: rem(14)}}/>} onClick={onEdit}>
-                            编辑
-                        </Menu.Item>
-                        <Menu.Item color="red" leftSection={<IconTrash style={{width: rem(14), height: rem(14)}}/>}
-                                   onClick={openDeleteModal}>删除</Menu.Item>
-                    </>
+                {/* 编辑：只对内容所有者显示 */}
+                {isOwner && onEdit && (
+                    <Menu.Item leftSection={<IconEdit style={{ width: rem(14), height: rem(14) }} />} onClick={onEdit}>
+                        编辑
+                    </Menu.Item>
                 )}
-                {!isOwner && (
-                    <Menu.Item leftSection={<IconFlag style={{width: rem(14), height: rem(14)}}/>}
-                               onClick={onReport}>举报</Menu.Item>
+
+                {/* 举报：只对非内容所有者且非管理员的普通用户显示 */}
+                {!isOwner && !isAdmin && (
+                    <Menu.Item leftSection={<IconFlag style={{ width: rem(14), height: rem(14) }} />} onClick={onReport}>
+                        举报
+                    </Menu.Item>
                 )}
-                {isAdmin && !isOwner && (
-                    <Menu.Item color="red" leftSection={<IconTrash style={{width: rem(14), height: rem(14)}}/>}
-                               onClick={openDeleteModal}>删除 (管理员)</Menu.Item>
+
+                {/* 删除：对内容所有者 或 任何管理员/超级管理员 显示 */}
+                {(isOwner || isAdmin) && (
+                    <Menu.Item
+                        color="red"
+                        leftSection={<IconTrash style={{ width: rem(14), height: rem(14) }} />}
+                        onClick={openDeleteModal}
+                    >
+                        {/* 根据身份显示不同文本 */}
+                        {isOwner ? '删除' : '删除 (管理员)'}
+                    </Menu.Item>
                 )}
             </Menu.Dropdown>
         </Menu>
@@ -189,7 +197,7 @@ export function PostFeed({posts, currentUserId, currentUserRole}: {
     const [comments, setComments] = useState<Comment[]>([]);
     const [isLoadingComments, setIsLoadingComments] = useState(false);
     const isMobile = useMediaQuery('(max-width: 768px)');
-    const isAdmin = currentUserRole === 'admin';
+    const isAdmin = currentUserRole === 'Admin' || currentUserRole === 'SuperAdmin';
 
     const fetchComments = (postId: number) => {
         setIsLoadingComments(true);

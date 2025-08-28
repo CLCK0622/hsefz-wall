@@ -17,7 +17,7 @@ async function getCurrentUser() {
     if (!user) throw new Error('用户不存在');
 
     // 修正：使用类型断言
-    const isAdmin = (sessionClaims?.metadata as { role?: string })?.role === 'admin';
+    const isAdmin = (sessionClaims?.metadata as { role?: string })?.role === 'Admin' || (sessionClaims?.metadata as { role?: string })?.role === 'SuperAdmin';
 
     return { ...user, isAdmin };
 }

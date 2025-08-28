@@ -1,5 +1,5 @@
 // app/page.tsx
-import { auth } from '@clerk/nextjs/server';
+import {auth, clerkClient} from '@clerk/nextjs/server';
 import { db } from "@/lib/db";
 import { sql } from 'kysely';
 import Header from "@/components/Header/Header";
@@ -11,6 +11,36 @@ import { PostWithDetails } from "@/components/PostCard/PostCard";
 
 export default async function HomePage() {
     const { userId: clerkId, sessionClaims } = await auth();
+
+    if (clerkId) {
+        // 1. 从我们自己的数据库获取当前用户信息
+        const userFromDb = await db.selectFrom('users')
+            .select(['username', 'avatar_url'])
+            .where('clerk_id', '=', clerkId)
+            .executeTakeFirst();
+
+        if (userFromDb) {
+            // 2. 从 Clerk 获取最新的用户信息（这是“真实来源”）
+            const userFromClerk = await (await clerkClient()).users.getUser(clerkId);
+
+            // 3. 构造最新的、正确的用户名和头像 URL
+            const correctUsername = `${userFromClerk.lastName || ''}${userFromClerk.firstName || ''}`.trim();
+            const correctAvatar = userFromClerk.imageUrl;
+
+            // 4. 对比数据，如果本地数据已过时，则更新它
+            if (userFromDb.username !== correctUsername || userFromDb.avatar_url !== correctAvatar) {
+                console.log(`Syncing user data for ${clerkId}: ${userFromDb.username} -> ${correctUsername}`);
+                await db.updateTable('users')
+                    .set({
+                        username: correctUsername,
+                        avatar_url: correctAvatar,
+                    })
+                    .where('clerk_id', '=', clerkId)
+                    .execute();
+            }
+        }
+        // 如果 userFromDb 不存在，说明是新用户，依赖 webhook 创建，这里不处理
+    }
 
     const currentUser = clerkId ? await db.selectFrom('users').select('id').where('clerk_id', '=', clerkId).executeTakeFirst() : null;
     const currentUserId = currentUser?.id;

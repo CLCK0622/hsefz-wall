@@ -15,6 +15,10 @@ export default function Header() {
     const isAdmin = userRole === 'Admin' || userRole === 'SuperAdmin';
     const isSuperAdmin = userRole === 'SuperAdmin';
 
+    const displayName = user ?
+        (user.lastName || user.firstName ? `${user.lastName || ''}${user.firstName || ''}`.trim() : user.primaryEmailAddress?.emailAddress)
+        : '';
+
     if (!isLoaded) {
         // ... Skeleton code is the same
     }
@@ -35,7 +39,7 @@ export default function Header() {
 
                         <Menu.Dropdown>
                             <Menu.Label>
-                                <Text size="sm" fw={500}>{user.fullName || user.primaryEmailAddress?.emailAddress}</Text>
+                                <Text size="sm" fw={500}>{displayName || user.primaryEmailAddress?.emailAddress}</Text>
                                 <Text size="xs" c="dimmed">{userRole || 'User'}</Text>
                             </Menu.Label>
                             <Menu.Item

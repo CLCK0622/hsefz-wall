@@ -59,7 +59,7 @@ export async function POST(req: Request) {
         const { id, email_addresses, first_name, last_name, image_url, public_metadata } = evt.data;
 
         const email = email_addresses[0].email_address;
-        const username = `${first_name || ''} ${last_name || ''}`.trim() || email.split('@')[0];
+        const username = `${last_name || ''}${first_name || ''}`.trim() || email.split('@')[0];
 
         await db.insertInto('users')
             .values({
@@ -77,13 +77,12 @@ export async function POST(req: Request) {
     if (eventType === 'user.updated') {
         const { id, first_name, last_name, image_url, public_metadata } = evt.data;
 
-        const username = `${first_name || ''} ${last_name || ''}`.trim();
+        const username = `${last_name || ''}${first_name || ''}`.trim();
 
         await db.updateTable('users')
             .set({
-                username: username,
+                ...(username ? { username } : {}),
                 avatar_url: image_url,
-                // 当 public_metadata 变化时，同步 role 字段
                 role: (public_metadata.role as string) || 'User',
             })
             .where('clerk_id', '=', id)

@@ -1,5 +1,5 @@
 // middleware.ts
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from 'next/server';
 
 const isPublicRoute = createRouteMatcher([
@@ -10,6 +10,7 @@ const isPublicRoute = createRouteMatcher([
 
 const isAdminRoute = createRouteMatcher(['/admin(.*)']);
 const isSuperAdminRoute = createRouteMatcher(['/admin/users(.*)']);
+const isVerificationRoute = createRouteMatcher(['/verify']);
 
 export default clerkMiddleware(async (auth, req) => {
     if (isPublicRoute(req)) {
@@ -22,7 +23,16 @@ export default clerkMiddleware(async (auth, req) => {
 
     // 2. To GET USER DATA, call the auth object as a function.
     const { sessionClaims } = await auth();
+    // --- 新增的强制验证逻辑 ---
     const userRole = (sessionClaims?.metadata as { role?: string })?.role;
+    const isVerified = (sessionClaims?.metadata as { verified?: boolean })?.verified;
+    const primaryEmail = sessionClaims?.email as string | undefined;
+
+    // 如果用户不是管理员，且未被认证，且主邮箱不合规，且当前不在验证页面
+    if (userRole !== 'Admin' && userRole !== 'SuperAdmin' && !isVerified && !primaryEmail?.endsWith('@hsefz.cn') && !isVerificationRoute(req)) {
+        const verifyUrl = new URL('/verify', req.url);
+        return NextResponse.redirect(verifyUrl);
+    }
 
     console.log(`[Middleware] Path: ${req.nextUrl.pathname}, User Role: ${userRole}`);
 
