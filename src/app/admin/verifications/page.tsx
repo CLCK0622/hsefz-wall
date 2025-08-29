@@ -55,14 +55,28 @@ export default async function VerificationsPage() {
                                             <input type="hidden" name="verificationId" value={req.id} />
                                             <input type="hidden" name="clerkId" value={req.clerk_user_id!} />
                                             <Group mt="md">
-                                                <form action={approveVerificationAction}>
+                                                <form>
                                                     <input type="hidden" name="verificationId" value={req.id} />
                                                     <input type="hidden" name="clerkId" value={req.clerk_user_id!} />
-                                                    <Button type="submit" color="green" size="xs">批准认证</Button>
-                                                </form>
-                                                <form action={rejectVerificationAction}>
-                                                    <input type="hidden" name="verificationId" value={req.id} />
-                                                    <Button type="submit" color="red" size="xs">拒绝</Button>
+                                                    <Group mt="md">
+                                                        <Button
+                                                            type="submit"
+                                                            color="green"
+                                                            size="xs"
+                                                            formAction={approveVerificationAction}
+                                                        >
+                                                            批准认证
+                                                        </Button>
+
+                                                        <Button
+                                                            type="submit"
+                                                            color="red"
+                                                            size="xs"
+                                                            formAction={rejectVerificationAction}
+                                                        >
+                                                            拒绝
+                                                        </Button>
+                                                    </Group>
                                                 </form>
                                             </Group>
                                         </form>
