@@ -25,12 +25,19 @@ export default clerkMiddleware(async (auth, req) => {
     const { sessionClaims } = await auth();
     // --- 新增的强制验证逻辑 ---
     const userRole = (sessionClaims?.metadata as { role?: string })?.role;
+    console.log('--- MIDDLEWARE DEBUG ---');
+    console.log('Path:', req.nextUrl.pathname);
+    console.log('Raw sessionClaims from Token:', JSON.stringify(sessionClaims, null, 2));
+
     const isVerified = (sessionClaims?.metadata as { verified?: boolean })?.verified;
+
+    // 打印我们提取出的 isVerified 的值
+    console.log('Extracted "isVerified" value:', isVerified);
+    console.log('--------------------------');
     const primaryEmail = sessionClaims?.email as string | undefined;
 
     if (userRole !== 'Admin' && userRole !== 'SuperAdmin' && !isVerified && !primaryEmail?.endsWith('@hsefz.cn') && !isVerificationRoute(req)) {
         const verifyUrl = new URL('/verify', req.url);
-        console.log(isVerified);
         return NextResponse.redirect(verifyUrl);
     }
 
