@@ -2,16 +2,16 @@
 'use client';
 
 import {Menu, Group, Avatar, Text, rem, Skeleton, Indicator} from '@mantine/core';
-import { useUser, useClerk } from '@clerk/nextjs';
+import {useUser, useClerk} from '@clerk/nextjs';
 import Link from 'next/link';
-import { IconReport, IconUserCheck, IconUsers, IconSettings, IconLogout } from '@tabler/icons-react';
+import {IconReport, IconUserCheck, IconUsers, IconSettings, IconLogout} from '@tabler/icons-react';
 import styles from './Header.module.scss';
 import {useEffect, useState} from "react";
 import {getPendingVerificationCountAction} from "@/lib/admin-actions";
 
 export default function Header() {
-    const { isLoaded, isSignedIn, user } = useUser();
-    const { signOut } = useClerk();
+    const {isLoaded, isSignedIn, user} = useUser();
+    const {signOut} = useClerk();
     const [pendingCount, setPendingCount] = useState(0);
 
     const userRole = user?.publicMetadata?.role as string | undefined;
@@ -43,7 +43,7 @@ export default function Header() {
                 <Group>
                     <Menu shadow="md" width={220} withArrow position="bottom-end">
                         <Menu.Target>
-                            <Avatar src={user.imageUrl} radius="xl" style={{ cursor: 'pointer' }} />
+                            <Avatar src={user.imageUrl} radius="xl" style={{cursor: 'pointer'}}/>
                         </Menu.Target>
 
                         <Menu.Dropdown>
@@ -54,31 +54,31 @@ export default function Header() {
                             <Menu.Item
                                 component={Link}
                                 href="/user"
-                                leftSection={<IconSettings style={{ width: rem(14), height: rem(14) }} />}
+                                leftSection={<IconSettings style={{width: rem(14), height: rem(14)}}/>}
                             >
                                 管理账户
                             </Menu.Item>
 
                             {isAdmin && (
                                 <>
-                                    <Menu.Divider />
+                                    <Menu.Divider/>
                                     <Menu.Label>管理面板</Menu.Label>
                                     <Menu.Item
                                         component={Link}
                                         href="/admin/reports"
-                                        leftSection={<IconReport style={{ width: rem(14), height: rem(14) }} />}
+                                        leftSection={<IconReport style={{width: rem(14), height: rem(14)}}/>}
                                     >
                                         处理举报
                                     </Menu.Item>
-                                    <Indicator inline size={8} color="red" disabled={pendingCount === 0}>
-                                        <Menu.Item
-                                            component={Link}
-                                            href="/admin/verifications"
-                                            leftSection={<IconUserCheck style={{ width: rem(14), height: rem(14) }} />}
-                                        >
-                                            审核新用户
-                                        </Menu.Item>
-                                    </Indicator>
+                                    <Menu.Item
+                                        component={Link}
+                                        href="/admin/verifications"
+                                        leftSection={<Indicator inline size={8} color="red"
+                                                                disabled={pendingCount === 0}><IconUserCheck
+                                            style={{width: rem(14), height: rem(14)}}/></Indicator>}
+                                    >
+                                        审核新用户
+                                    </Menu.Item>
                                 </>
                             )}
 
@@ -86,17 +86,17 @@ export default function Header() {
                                 <Menu.Item
                                     component={Link}
                                     href="/admin/users"
-                                    leftSection={<IconUsers style={{ width: rem(14), height: rem(14) }} />}
+                                    leftSection={<IconUsers style={{width: rem(14), height: rem(14)}}/>}
                                 >
                                     设置管理员
                                 </Menu.Item>
                             )}
 
-                            <Menu.Divider />
+                            <Menu.Divider/>
                             <Menu.Item
                                 color="red"
-                                leftSection={<IconLogout style={{ width: rem(14), height: rem(14) }} />}
-                                onClick={() => signOut({ redirectUrl: '/' })}
+                                leftSection={<IconLogout style={{width: rem(14), height: rem(14)}}/>}
+                                onClick={() => signOut({redirectUrl: '/'})}
                             >
                                 退出登录
                             </Menu.Item>

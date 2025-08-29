@@ -30,36 +30,7 @@ export default async function AdminUsersPage() {
 
     return (
         <Container py="xl">
-            <Title order={2} mb="lg">用户管理</Title>
-
-            {/* 新增：待处理请求区域 */}
-            {pendingVerifications.length > 0 && (
-                <>
-                    <Title order={3} mb="sm">待处理的认证申请 ({pendingVerifications.length})</Title>
-                    <Accordion variant="separated" mb="xl">
-                        {pendingVerifications.map(req => (
-                            <Accordion.Item key={req.id} value={String(req.id)}>
-                                <Accordion.Control>
-                                    <Text>申请用户ID: {req.clerk_user_id}</Text>
-                                </Accordion.Control>
-                                <Accordion.Panel>
-                                    <Stack>
-                                        <Text><strong>提交信息:</strong> {req.details_text}</Text>
-                                        <Text><strong>申请邮箱:</strong> {req.requested_email}</Text>
-                                        <Text><strong>学生卡:</strong></Text>
-                                        <Image src={req.image_url} maw={240} radius="sm" alt="学生卡" />
-                                        <form action={approveVerificationAction}>
-                                            <input type="hidden" name="verificationId" value={req.id} />
-                                            <input type="hidden" name="clerkId" value={req.clerk_user_id!} />
-                                            <Button type="submit" color="green" size="xs">批准</Button>
-                                        </form>
-                                    </Stack>
-                                </Accordion.Panel>
-                            </Accordion.Item>
-                        ))}
-                    </Accordion>
-                </>
-            )}
+            <Title order={2} mb="lg">用户身份管理</Title>
 
             {/* Use the standalone components instead of the Component.SubComponent syntax */}
             <Table striped withTableBorder verticalSpacing="sm">
@@ -79,7 +50,7 @@ export default async function AdminUsersPage() {
 
                         return (
                             <TableTr key={user.id}>
-                                <TableTd>{user.firstName} {user.lastName || user.username}</TableTd>
+                                <TableTd>{user.lastName}{user.firstName || user.username}</TableTd>
                                 <TableTd>{user.emailAddresses[0]?.emailAddress}</TableTd>
                                 <TableTd>{role}</TableTd>
                                 <TableTd>

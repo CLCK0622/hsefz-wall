@@ -1,25 +1,12 @@
-// app/admin/verifications/page.tsx
 import { db } from '@/lib/db';
-import {
-    Container,
-    Title,
-    Accordion,
-    Text,
-    Stack,
-    Image,
-    Button,
-    Center,
-    AccordionItem,
-    AccordionControl,
-    AccordionPanel, Group
-} from '@mantine/core';
-import {approveVerificationAction, rejectVerificationAction} from '@/lib/admin-actions';
+import { Container, Title, Accordion, Text, Center } from '@mantine/core';
 import Header from '@/components/Header/Header';
+// 1. Import the new client component
+import { VerificationRequestItem } from '@/components/VerificationRequestForm/VerificationRequestForm';
 
-// 这是一个服务器组件，直接从数据库获取数据
+// This is now purely a Server Component
 export default async function VerificationsPage() {
 
-    // 从数据库获取所有待处理的请求
     const pendingVerifications = await db.selectFrom('manual_verifications')
         .selectAll()
         .where('status', '=', 'pending')
@@ -33,56 +20,9 @@ export default async function VerificationsPage() {
 
                 {pendingVerifications.length > 0 ? (
                     <Accordion variant="separated">
+                        {/* 2. Render the client component in a loop */}
                         {pendingVerifications.map(req => (
-                            <AccordionItem key={req.id} value={String(req.id)}>
-                                <AccordionControl>
-                                    <Text>
-                                        申请用户 Clerk ID: <Text span c="blue" inherit>{req.clerk_user_id}</Text>
-                                    </Text>
-                                </AccordionControl>
-                                <AccordionPanel>
-                                    <Stack>
-                                        <Text><strong>提交信息:</strong> {req.details_text}</Text>
-                                        <Text><strong>申请邮箱:</strong> {req.requested_email}</Text>
-                                        <Text><strong>学生卡照片:</strong></Text>
-                                        <Image
-                                            src={req.image_url}
-                                            maw={240}
-                                            radius="sm"
-                                            alt="学生卡照片"
-                                        />
-                                        <form action={approveVerificationAction}>
-                                            <input type="hidden" name="verificationId" value={req.id} />
-                                            <input type="hidden" name="clerkId" value={req.clerk_user_id!} />
-                                            <Group mt="md">
-                                                <form>
-                                                    <input type="hidden" name="verificationId" value={req.id} />
-                                                    <input type="hidden" name="clerkId" value={req.clerk_user_id!} />
-                                                    <Group mt="md">
-                                                        <Button
-                                                            type="submit"
-                                                            color="green"
-                                                            size="xs"
-                                                            formAction={approveVerificationAction}
-                                                        >
-                                                            批准认证
-                                                        </Button>
-
-                                                        <Button
-                                                            type="submit"
-                                                            color="red"
-                                                            size="xs"
-                                                            formAction={rejectVerificationAction}
-                                                        >
-                                                            拒绝
-                                                        </Button>
-                                                    </Group>
-                                                </form>
-                                            </Group>
-                                        </form>
-                                    </Stack>
-                                </AccordionPanel>
-                            </AccordionItem>
+                            <VerificationRequestItem key={req.id} request={req} />
                         ))}
                     </Accordion>
                 ) : (

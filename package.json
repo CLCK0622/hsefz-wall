@@ -24,6 +24,7 @@
     "@vercel/blob": "^1.1.1",
     "browser-image-compression": "^2.0.2",
     "clerk": "^0.8.3",
+    "dns": "^0.2.2",
     "kysely": "^0.28.5",
     "next": "15.4.6",
     "node-pg-migrate": "^8.0.3",
