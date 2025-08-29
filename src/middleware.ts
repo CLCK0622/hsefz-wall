@@ -1,5 +1,5 @@
 // middleware.ts
-import { clerkMiddleware, createRouteMatcher, currentUser } from "@clerk/nextjs/server";
+import {clerkClient, clerkMiddleware, createRouteMatcher, currentUser} from "@clerk/nextjs/server";
 import { NextResponse } from 'next/server';
 
 const isPublicRoute = createRouteMatcher([
@@ -21,20 +21,16 @@ export default clerkMiddleware(async (auth, req) => {
     // This will handle redirecting unauthenticated users.
     await auth.protect();
 
-    // 2. To GET USER DATA, call the auth object as a function.
-    const { sessionClaims } = await auth();
-    // --- 新增的强制验证逻辑 ---
-    const userRole = (sessionClaims?.metadata as { role?: string })?.role;
-    console.log('--- MIDDLEWARE DEBUG ---');
-    console.log('Path:', req.nextUrl.pathname);
-    console.log('Raw sessionClaims from Token:', JSON.stringify(sessionClaims, null, 2));
+    const { userId } = await auth();
+    if (userId === null) {
+        return NextResponse.redirect(new URL('/sign-in', req.url));
+    }
+    const clerkUser = await (await clerkClient()).users.getUser(userId);
 
-    const isVerified = (sessionClaims?.metadata as { verified?: boolean })?.verified;
-
-    // 打印我们提取出的 isVerified 的值
-    console.log('Extracted "isVerified" value:', isVerified);
-    console.log('--------------------------');
-    const primaryEmail = sessionClaims?.email as string | undefined;
+    // 从最新的、最准确的用户数据中提取信息
+    const userRole = (clerkUser.publicMetadata as { role?: string })?.role;
+    const isVerified = (clerkUser.publicMetadata as { verified?: boolean })?.verified;
+    const primaryEmail = clerkUser.primaryEmailAddress?.emailAddress;
 
     if (userRole !== 'Admin' && userRole !== 'SuperAdmin' && !isVerified && !primaryEmail?.endsWith('@hsefz.cn') && !isVerificationRoute(req)) {
         const verifyUrl = new URL('/verify', req.url);
