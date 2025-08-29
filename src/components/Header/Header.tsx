@@ -1,7 +1,7 @@
 // components/Header/Header.tsx
 'use client';
 
-import { Menu, Group, Avatar, Text, rem, Skeleton } from '@mantine/core';
+import {Menu, Group, Avatar, Text, rem, Skeleton, Indicator} from '@mantine/core';
 import { useUser, useClerk } from '@clerk/nextjs';
 import Link from 'next/link';
 import { IconReport, IconUserCheck, IconUsers, IconSettings, IconLogout } from '@tabler/icons-react';
@@ -70,13 +70,15 @@ export default function Header() {
                                     >
                                         处理举报
                                     </Menu.Item>
-                                    <Menu.Item
-                                        component={Link}
-                                        href="/admin/verifications"
-                                        leftSection={<IconUserCheck style={{ width: rem(14), height: rem(14) }} />}
-                                    >
-                                        审核新用户
-                                    </Menu.Item>
+                                    <Indicator inline size={8} color="red" disabled={pendingCount === 0}>
+                                        <Menu.Item
+                                            component={Link}
+                                            href="/admin/verifications"
+                                            leftSection={<IconUserCheck style={{ width: rem(14), height: rem(14) }} />}
+                                        >
+                                            审核新用户
+                                        </Menu.Item>
+                                    </Indicator>
                                 </>
                             )}
 
