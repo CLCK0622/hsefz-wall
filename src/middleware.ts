@@ -28,8 +28,7 @@ export default clerkMiddleware(async (auth, req) => {
     const isVerified = (sessionClaims?.metadata as { verified?: boolean })?.verified;
     const primaryEmail = sessionClaims?.email as string | undefined;
 
-    // 如果用户不是管理员，且未被认证，且主邮箱不合规，且当前不在验证页面
-    if (userRole !== 'Admin' && userRole !== 'SuperAdmin' && !isVerified && !primaryEmail?.endsWith('@hsefz.cn') && !isVerificationRoute(req) && !isVerified) {
+    if (userRole !== 'Admin' && userRole !== 'SuperAdmin' && !isVerified && !primaryEmail?.endsWith('@hsefz.cn') && !isVerificationRoute(req) || !isVerified) {
         const verifyUrl = new URL('/verify', req.url);
         return NextResponse.redirect(verifyUrl);
     }
