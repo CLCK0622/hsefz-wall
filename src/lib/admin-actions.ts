@@ -32,7 +32,9 @@ export async function updateUserRoleAction(formData: FormData) {
 
 export async function approveVerificationAction(formData: FormData) {
     const { sessionClaims } = await auth();
-    if ((sessionClaims?.metadata as { role?: string })?.role !== 'SuperAdmin') {
+    const userRole = (sessionClaims?.metadata as { role?: string })?.role;
+
+    if (userRole !== 'Admin' && userRole !== 'SuperAdmin') {
         throw new Error('无权操作');
     }
 
@@ -57,4 +59,37 @@ export async function approveVerificationAction(formData: FormData) {
         .execute();
 
     revalidatePath('/admin/users');
+}
+
+export async function rejectVerificationAction(formData: FormData) {
+    const { sessionClaims } = await auth();
+    const userRole = (sessionClaims?.metadata as { role?: string })?.role;
+    if (userRole !== 'Admin' && userRole !== 'SuperAdmin') {
+        throw new Error('无权操作');
+    }
+
+    const verificationId = Number(formData.get('verificationId'));
+    if (!verificationId) throw new Error('缺少参数');
+
+    await db.updateTable('manual_verifications')
+        .set({ status: 'rejected' }) // 将状态更新为 'rejected'
+        .where('id', '=', verificationId)
+        .execute();
+
+    revalidatePath('/admin/verifications');
+}
+
+export async function getPendingVerificationCountAction() {
+    const { sessionClaims } = await auth();
+    const userRole = (sessionClaims?.metadata as { role?: string })?.role;
+    if (userRole !== 'Admin' && userRole !== 'SuperAdmin') {
+        return 0; // 如果不是管理员，直接返回 0
+    }
+
+    const result = await db.selectFrom('manual_verifications')
+        .select(eb => eb.fn.count('id').as('count'))
+        .where('status', '=', 'pending')
+        .executeTakeFirst();
+
+    return Number(result?.count) || 0;
 }

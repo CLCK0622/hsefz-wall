@@ -6,14 +6,23 @@ import { useUser, useClerk } from '@clerk/nextjs';
 import Link from 'next/link';
 import { IconReport, IconUserCheck, IconUsers, IconSettings, IconLogout } from '@tabler/icons-react';
 import styles from './Header.module.scss';
+import {useEffect, useState} from "react";
+import {getPendingVerificationCountAction} from "@/lib/admin-actions";
 
 export default function Header() {
     const { isLoaded, isSignedIn, user } = useUser();
     const { signOut } = useClerk();
+    const [pendingCount, setPendingCount] = useState(0);
 
     const userRole = user?.publicMetadata?.role as string | undefined;
     const isAdmin = userRole === 'Admin' || userRole === 'SuperAdmin';
     const isSuperAdmin = userRole === 'SuperAdmin';
+
+    useEffect(() => {
+        if (isAdmin) {
+            getPendingVerificationCountAction().then(setPendingCount);
+        }
+    }, [isAdmin]); // 当 isAdmin 状态明确后执行
 
     const displayName = user ?
         (user.lastName || user.firstName ? `${user.lastName || ''}${user.firstName || ''}`.trim() : user.primaryEmailAddress?.emailAddress)

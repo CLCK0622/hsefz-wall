@@ -47,3 +47,16 @@ export async function submitVerificationRequestAction(data: {
 
     return { success: true, message: '您的申请已提交，请等待管理员审核。' };
 }
+
+export async function getUserVerificationStatusAction() {
+    const { userId: clerkId } = await auth();
+    if (!clerkId) return null;
+
+    const latestRequest = await db.selectFrom('manual_verifications')
+        .select('status')
+        .where('clerk_user_id', '=', clerkId)
+        .orderBy('created_at', 'desc')
+        .executeTakeFirst();
+
+    return latestRequest?.status || null; // 返回 'pending', 'rejected' 或 null
+}
