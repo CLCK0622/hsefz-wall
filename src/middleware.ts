@@ -11,6 +11,7 @@ const isPublicRoute = createRouteMatcher([
 const isAdminRoute = createRouteMatcher(['/admin(.*)']);
 const isSuperAdminRoute = createRouteMatcher(['/admin/users(.*)']);
 const isVerificationRoute = createRouteMatcher(['/verify', '/api/upload']);
+const isVerificationPage = createRouteMatcher(['/verify']);
 
 export default clerkMiddleware(async (auth, req) => {
     if (isPublicRoute(req)) {
@@ -35,6 +36,11 @@ export default clerkMiddleware(async (auth, req) => {
     if (userRole !== 'Admin' && userRole !== 'SuperAdmin' && !isVerified && !primaryEmail?.endsWith('@hsefz.cn') && !isVerificationRoute(req)) {
         const verifyUrl = new URL('/verify', req.url);
         return NextResponse.redirect(verifyUrl);
+    }
+
+    if ((isVerified || userRole === 'Admin' || userRole === 'SuperAdmin') && isVerificationPage(req)) {
+        const homeUrl = new URL('/', req.url);
+        return NextResponse.redirect(homeUrl);
     }
 
     console.log(`[Middleware] Path: ${req.nextUrl.pathname}, User Role: ${userRole}`);
