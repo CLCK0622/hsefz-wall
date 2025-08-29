@@ -41,10 +41,6 @@ export default clerkMiddleware(async (auth, req) => {
         return NextResponse.redirect(verifyUrl);
     }
 
-    if (userRole === 'Admin' || userRole === 'SuperAdmin' || primaryEmail?.endsWith('@hsefz.cn') || isVerified) {
-        return NextResponse.redirect('/');
-    }
-
     console.log(`[Middleware] Path: ${req.nextUrl.pathname}, User Role: ${userRole}`);
 
     // 3. Now perform the role checks on the authenticated user.
