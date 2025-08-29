@@ -64,7 +64,7 @@ export default function VerifyPage() {
                         <TextInput name="classNumber" label="四位数字班级 (如 2501)" withAsterisk />
                         <TextInput name="email" label="hsefz.cn 邮箱" withAsterisk />
                         <FileInput
-                            label="学生卡照片"
+                            label="学生卡照片（不超过 4.5MB）"
                             placeholder="点击上传"
                             value={studentCardFile}
                             onChange={setStudentCardFile}

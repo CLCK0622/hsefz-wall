@@ -10,7 +10,7 @@ const isPublicRoute = createRouteMatcher([
 
 const isAdminRoute = createRouteMatcher(['/admin(.*)']);
 const isSuperAdminRoute = createRouteMatcher(['/admin/users(.*)']);
-const isVerificationRoute = createRouteMatcher(['/verify']);
+const isVerificationRoute = createRouteMatcher(['/verify', '/api/upload']);
 
 export default clerkMiddleware(async (auth, req) => {
     if (isPublicRoute(req)) {
