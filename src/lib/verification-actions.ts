@@ -8,10 +8,16 @@ const requestSchema = z.object({
     realName: z.string().min(1, '真实姓名不能为空'),
     classNumber: z.string().regex(/^\d{4}$/, '班级必须是4位数字'),
     email: z.string().email('邮箱格式不正确').endsWith('@hsefz.cn', '必须是 hsefz.cn 邮箱'),
-    imageUrl: z.string().url('图片上传失败，请重试'),
+    imageUrl: z.string().url('图片 URL 无效'),
 });
 
-export async function submitVerificationRequestAction(data: FormData) {
+// 1. 修改函数签名，接收一个普通对象
+export async function submitVerificationRequestAction(data: {
+    realName: string;
+    classNumber: string;
+    email: string;
+    imageUrl: string;
+}) {
     const { userId: clerkId } = await auth();
     if (!clerkId) throw new Error('用户未登录');
 
