@@ -30,6 +30,7 @@ export default clerkMiddleware(async (auth, req) => {
 
     if (userRole !== 'Admin' && userRole !== 'SuperAdmin' && !isVerified && !primaryEmail?.endsWith('@hsefz.cn') && !isVerificationRoute(req)) {
         const verifyUrl = new URL('/verify', req.url);
+        console.log(isVerified);
         return NextResponse.redirect(verifyUrl);
     }
 
