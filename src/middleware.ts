@@ -28,9 +28,13 @@ export default clerkMiddleware(async (auth, req) => {
     const isVerified = (sessionClaims?.metadata as { verified?: boolean })?.verified;
     const primaryEmail = sessionClaims?.email as string | undefined;
 
-    if (userRole !== 'Admin' && userRole !== 'SuperAdmin' && !isVerified && !primaryEmail?.endsWith('@hsefz.cn') && !isVerificationRoute(req) || !isVerified) {
+    if (userRole !== 'Admin' && userRole !== 'SuperAdmin' && !isVerified && !primaryEmail?.endsWith('@hsefz.cn') && !isVerificationRoute(req)) {
         const verifyUrl = new URL('/verify', req.url);
         return NextResponse.redirect(verifyUrl);
+    }
+
+    if (userRole === 'Admin' || userRole === 'SuperAdmin' || primaryEmail?.endsWith('@hsefz.cn') || isVerified) {
+        return NextResponse.redirect('/');
     }
 
     console.log(`[Middleware] Path: ${req.nextUrl.pathname}, User Role: ${userRole}`);
