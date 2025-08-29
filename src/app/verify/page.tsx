@@ -57,7 +57,7 @@ export default function VerifyPage() {
                 <Button onClick={open}>申请手动批准</Button>
             </Stack>
 
-            <Modal opened={opened} onClose={close} title="手动批准申请" centered>
+            <Modal opened={opened} onClose={close} title="手动批准申请" centered zIndex="3000">
                 <form onSubmit={handleSubmit}>
                     <Stack>
                         <TextInput name="realName" label="真实姓名" withAsterisk />
