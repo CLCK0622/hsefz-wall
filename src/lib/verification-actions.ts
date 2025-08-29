@@ -11,19 +11,20 @@ const requestSchema = z.object({
     imageUrl: z.string().url('图片上传失败，请重试'),
 });
 
-export async function submitVerificationRequestAction(formData: FormData) {
+export async function submitVerificationRequestAction(data: {
+    realName: string;
+    classNumber: string;
+    email: string;
+    imageUrl: string;
+}) {
     const { userId: clerkId } = await auth();
     if (!clerkId) throw new Error('用户未登录');
 
     const user = await db.selectFrom('users').select('id').where('clerk_id', '=', clerkId).executeTakeFirst();
     if (!user) throw new Error('用户不存在');
 
-    const validation = requestSchema.safeParse({
-        realName: formData.get('realName'),
-        classNumber: formData.get('classNumber'),
-        email: formData.get('email'),
-        imageUrl: formData.get('imageUrl'),
-    });
+    // 2. 直接使用传入的 data 对象进行校验
+    const validation = requestSchema.safeParse(data);
 
     if (!validation.success) {
         throw new Error(validation.error.issues[0].message);

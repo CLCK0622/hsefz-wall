@@ -20,18 +20,24 @@ export default function VerifyPage() {
         setIsSubmitting(true);
 
         try {
-            // 1. 上传图片
+            // 1. 上传图片 (不变)
             const uploadResponse = await fetch(`/api/upload?filename=${encodeURIComponent(studentCardFile.name)}`, {
                 method: 'POST', body: studentCardFile,
             });
             if (!uploadResponse.ok) throw new Error('图片上传失败');
             const blob = await uploadResponse.json();
 
-            // 2. 提交表单
+            // 2. 构造一个普通的 JavaScript 对象，而不是 FormData
             const formData = new FormData(event.currentTarget);
-            formData.append('imageUrl', blob.url);
+            const dataToSubmit = {
+                realName: formData.get('realName') as string,
+                classNumber: formData.get('classNumber') as string,
+                email: formData.get('email') as string,
+                imageUrl: blob.url,
+            };
 
-            const result = await submitVerificationRequestAction(formData);
+            // 3. 将这个普通对象传递给 Server Action
+            const result = await submitVerificationRequestAction(dataToSubmit);
             notifications.show({ color: 'green', title: '成功', message: result.message });
             close();
         } catch (error: any) {
