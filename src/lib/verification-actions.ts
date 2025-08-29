@@ -11,12 +11,7 @@ const requestSchema = z.object({
     imageUrl: z.string().url('图片上传失败，请重试'),
 });
 
-export async function submitVerificationRequestAction(data: {
-    realName: string;
-    classNumber: string;
-    email: string;
-    imageUrl: string;
-}) {
+export async function submitVerificationRequestAction(data: FormData) {
     const { userId: clerkId } = await auth();
     if (!clerkId) throw new Error('用户未登录');
 
