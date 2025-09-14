@@ -12,15 +12,22 @@ export async function POST(request: Request): Promise<NextResponse> {
     const { searchParams } = new URL(request.url);
     const filename = searchParams.get('filename');
 
-    if (!filename || !request.body) {
+    if (!filename) {
         return new NextResponse('Missing filename or request body', { status: 400 });
     }
 
-    // 这里的 blob 就是上传后的文件信息，包含了 url
-    const blob = await put(filename, request.body, {
-        access: 'public',
-        allowOverwrite: true,
-    });
+    if (request.body === null) {
+        return new NextResponse('No file body found in request', { status: 400 });
+    }
 
-    return NextResponse.json(blob);
+    try {
+        const blob = await put(filename, request.body, {
+            access: 'public',
+            // multipart: true,
+        });
+
+        return NextResponse.json(blob);
+    } catch (error: any) {
+        return new NextResponse(`Error uploading file: ${error.message}`, { status: 500 });
+    }
 }
