@@ -2,13 +2,11 @@
 'use server';
 import { auth } from '@clerk/nextjs/server';
 import { db } from './db';
-import { z } from 'zod';
+import {z, ZodError} from 'zod';
+import { verificationRequestSchema } from '@/lib/verification_schema';
 
-const requestSchema = z.object({
-    realName: z.string().min(1, '真实姓名不能为空'),
-    classNumber: z.string().regex(/^\d{4}$/, '班级必须是4位数字'),
-    email: z.string().email('邮箱格式不正确').endsWith('@hsefz.cn', '必须是 hsefz.cn 邮箱'),
-    imageUrl: z.string().url('图片 URL 无效'),
+const serverRequestSchema = verificationRequestSchema.extend({
+    imageUrl: z.string().url({ message: '图片 URL 无效' }),
 });
 
 // 1. 修改函数签名，接收一个普通对象
@@ -24,26 +22,32 @@ export async function submitVerificationRequestAction(data: {
     const user = await db.selectFrom('users').select('id').where('clerk_id', '=', clerkId).executeTakeFirst();
     if (!user) throw new Error('用户不存在');
 
-    // 2. 直接使用传入的 data 对象进行校验
-    const validation = requestSchema.safeParse(data);
+    try {
+        // 2. 将 Zod 校验放在 try 块中
+        const validatedData = serverRequestSchema.parse(data);
 
-    if (!validation.success) {
-        throw new Error(validation.error.issues[0].message);
+        const { realName, classNumber, email, imageUrl } = validatedData;
+        const details = `姓名: ${realName}, 班级: ${classNumber}`;
+
+        await db.insertInto('manual_verifications')
+            .values({
+                user_id: user.id,
+                clerk_user_id: clerkId,
+                details_text: details,
+                image_url: imageUrl,
+                requested_email: email,
+                status: 'pending',
+            })
+            .execute();
+
+    } catch (error) {
+        // 3. 捕获错误，并判断它是否是 ZodError
+        if (error instanceof ZodError) {
+            throw new Error(error.issues[0].message);
+        }
+        // 如果是其他类型的错误，则抛出一个通用的、安全的信息
+        throw new Error('提交失败，请稍后重试。');
     }
-
-    const { realName, classNumber, email, imageUrl } = validation.data;
-    const details = `姓名: ${realName}, 班级: ${classNumber}`;
-
-    await db.insertInto('manual_verifications')
-        .values({
-            user_id: user.id,
-            clerk_user_id: clerkId,
-            details_text: details,
-            image_url: imageUrl,
-            requested_email: email,
-            status: 'pending',
-        })
-        .execute();
 
     return { success: true, message: '您的申请已提交，请等待管理员审核。' };
 }

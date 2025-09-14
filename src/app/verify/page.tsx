@@ -6,6 +6,9 @@ import {useState, useRef, useEffect} from 'react';
 import {getUserVerificationStatusAction, submitVerificationRequestAction} from '@/lib/verification-actions';
 import { notifications } from '@mantine/notifications';
 import {IconInfoCircle} from "@tabler/icons-react";
+import { useForm } from '@mantine/form'; // 1. 导入 useForm hook
+import { zodResolver } from 'mantine-form-zod-resolver'; // 2. 导入 Zod 解析器
+import { verificationRequestSchema } from '@/lib/verification_schema'; // 3. 导入 Zod 模式
 
 export default function VerifyPage() {
     const [opened, { open, close }] = useDisclosure(false);
@@ -14,6 +17,16 @@ export default function VerifyPage() {
     const formRef = useRef<HTMLFormElement>(null);
     const [verificationStatus, setVerificationStatus] = useState<'loading' | 'pending' | 'rejected' | null>('loading');
 
+    const form = useForm({
+        initialValues: {
+            realName: '',
+            classNumber: '',
+            email: '',
+        },
+        // 使用 Zod 解析器连接我们的校验规则
+        validate: zodResolver(verificationRequestSchema),
+    });
+
     // 4. 页面加载时获取用户当前的认证状态
     useEffect(() => {
         getUserVerificationStatusAction().then(status => {
@@ -21,8 +34,8 @@ export default function VerifyPage() {
         });
     }, []);
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const handleSubmit = async (values: typeof form.values) => {
+
         if (!studentCardFile) {
             notifications.show({ color: 'red', message: '请上传学生卡照片' });
             return;
@@ -99,12 +112,26 @@ export default function VerifyPage() {
                 {renderApplySection()}
             </Stack>
 
-            <Modal opened={opened} onClose={close} title="手动批准申请" centered>
-                <form ref={formRef} onSubmit={handleSubmit}>
+            <Modal opened={opened} onClose={close} title="手动批准申请" centered zIndex={3000}>
+                {/* 6. 将 form 的 onSubmit 事件连接到 Mantine Form */}
+                <form onSubmit={form.onSubmit(handleSubmit)}>
                     <Stack>
-                        <TextInput name="realName" label="真实姓名" withAsterisk />
-                        <TextInput name="classNumber" label="四位数字班级 (如 2501)" withAsterisk />
-                        <TextInput name="email" label="hsefz.cn 邮箱" withAsterisk />
+                        {/* 7. 将每个输入框连接到 Mantine Form */}
+                        <TextInput
+                            label="真实姓名"
+                            withAsterisk
+                            {...form.getInputProps('realName')}
+                        />
+                        <TextInput
+                            label="四位数字班级 (如 2801)"
+                            withAsterisk
+                            {...form.getInputProps('classNumber')}
+                        />
+                        <TextInput
+                            label="hsefz.cn 邮箱"
+                            withAsterisk
+                            {...form.getInputProps('email')}
+                        />
                         <FileInput
                             label="学生卡照片"
                             placeholder="点击上传"
@@ -112,6 +139,7 @@ export default function VerifyPage() {
                             onChange={setStudentCardFile}
                             withAsterisk
                             accept="image/*"
+                            // 也可以连接到 form.getInputProps 来显示文件相关的错误
                         />
                         <Button type="submit" mt="md" loading={isSubmitting}>提交申请</Button>
                     </Stack>
