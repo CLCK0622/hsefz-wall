@@ -1,7 +1,7 @@
 /* components/Header/Header.module.scss */
 
 .header {
-    background-color: #fff;
+    background-color: var(--mantine-color-body);
     border-bottom: 1px solid var(--mantine-color-gray-3); // 使用 Mantine 的颜色变量
     padding: 0 var(--mantine-spacing-md); // 使用 Mantine 的间距变量
     height: 60px;
