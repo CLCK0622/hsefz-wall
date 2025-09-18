@@ -5,7 +5,8 @@ import { NextResponse } from 'next/server';
 const isPublicRoute = createRouteMatcher([
     '/sign-in(.*)',
     '/sign-up(.*)',
-    '/api/webhooks/clerk'
+    '/api/webhooks/clerk',
+    '/user'
 ]);
 
 const isAdminRoute = createRouteMatcher(['/admin(.*)']);
