@@ -19,7 +19,7 @@ export const sendEmail = async (data: EmailPayload) => {
     });
 
     return await transporter.sendMail({
-        from: `HSEFZ 校园墙 <${process.env.SMTP_USER}>`,
+        from: `张江多功能墙 <${process.env.SMTP_USER}>`,
         ...data,
     });
 };
