@@ -21,6 +21,7 @@ import { useRouter } from 'next/navigation';
 import { autoVerifyAction, submitVerificationRequestAction, getUserVerificationStatusAction } from '@/lib/verification-actions';
 import { notifications } from '@mantine/notifications';
 import { IconInfoCircle } from '@tabler/icons-react';
+import Link from "next/link";
 
 export default function VerifyPage() {
     // Hooks for controlling modals
@@ -128,18 +129,27 @@ export default function VerifyPage() {
             )}
 
             <Stack mt="xl" gap="lg">
-                {/* 4. 如果是 hsefz.cn 邮箱，显示自动验证选项 */}
-                {isHsefzEmail && (
-                    <Paper withBorder shadow="md" p="lg" radius="md">
-                        <Text fw={500}>自动验证 (推荐)</Text>
-                        <Text size="sm" c="dimmed" mt="xs">
-                            您的主邮箱 ({primaryEmail}) 符合自动验证要求，请输入您的真实姓名以立即完成认证。
-                        </Text>
-                        <Button onClick={openAutoModal} mt="md">开始自动验证</Button>
-                    </Paper>
-                )}
+                {/* --- 核心修改在这里 --- */}
+                {/* 1. 移除了外层的条件渲染，让这个卡片始终可见 */}
+                <Paper withBorder shadow="md" p="lg" radius="md">
+                    <Text fw={500}>自动验证 (推荐)</Text>
+                    <Text size="sm" c="dimmed" mt="xs">
+                        请确保您的 <Text component={Link} href="/user" variant="link">主邮箱</Text> 是 `@hsefz.cn` 后缀，然后输入真实姓名以完成即时认证。
+                    </Text>
 
-                {/* 5. 手动验证选项 */}
+                    {/* 2. 新增一个提示，当邮箱不符合时显示 */}
+                    {!isHsefzEmail && (
+                        <Text size="xs" c="red" mt="sm">
+                            您当前的主邮箱 ({primaryEmail}) 不符合要求，请先去“管理账户”页面添加、验证 hsefz.cn 邮箱并设置为主要邮箱。
+                        </Text>
+                    )}
+
+                    {/* 3. 根据 isHsefzEmail 的值来禁用按钮 */}
+                    <Button onClick={openAutoModal} mt="md" disabled={!isHsefzEmail}>
+                        开始自动验证
+                    </Button>
+                </Paper>
+
                 <Paper withBorder shadow="md" p="lg" radius="md">
                     <Text fw={500}>申请手动批准</Text>
                     <Text size="sm" c="dimmed" mt="xs">
