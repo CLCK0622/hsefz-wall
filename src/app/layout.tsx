@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <html lang="zh">
             <head><ColorSchemeScript /></head>
             <body>
-            <MantineProvider defaultColorScheme="auto">
+            <MantineProvider defaultColorScheme="light">
                 {/* 👇 Wrap with ModalsProvider */}
                 <ModalsProvider>
                     <Notifications />
