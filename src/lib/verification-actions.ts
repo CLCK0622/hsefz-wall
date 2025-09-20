@@ -156,17 +156,8 @@ export async function submitVerificationRequestAction(
         })
         .execute();
 
-
-    await db.insertInto('manual_verifications')
-        .values({
-            user_id: user.id,
-            clerk_user_id: clerkId,
-            details_text: details,
-            image_url: imageUrl,
-            requested_email: email,
-            status: 'pending',
-        })
-        .execute();
+    revalidatePath('/admin/verifications');
+    revalidatePath('/admin/users');
 
     return {success: true, message: '您的申请已提交，请等待管理员审核。'};
 }
