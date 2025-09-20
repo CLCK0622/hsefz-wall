@@ -30,6 +30,7 @@ import {deletePostAction, deleteCommentAction, reportAction} from '@/lib/moderat
 import styles from './PostFeed.module.scss';
 import {modals} from '@mantine/modals';
 import {EditPostForm} from "@/components/EditPostForm/EditPostForm";
+import {formatInBeijingTime} from "@/lib/formatDate";
 
 // 1. 更新 Comment 类型定义，加入 user_id
 type Comment = {
@@ -147,8 +148,7 @@ interface PostContentViewProps {
 const PostContentView = ({post, actionMenu}: PostContentViewProps) => {
     const authorName = post.is_anonymous ? '匿名用户' : post.user?.username || '未知用户';
     const authorAvatar = post.is_anonymous ? null : post.user?.avatar_url;
-    const postDate = new Date(post.created_at).toLocaleString('zh-CN', {dateStyle: 'medium', timeStyle: 'short'});
-
+    const postDate = formatInBeijingTime(post.created_at, 'yyyy年M月d日 HH:mm');
     return (
         <Box>
             {post.images.length > 0 && (
@@ -262,7 +262,7 @@ export function PostFeed({posts, currentUserId, currentUserRole}: {
                             <Text size="sm" fw={500}>{comment.username}</Text>
                             <Text size="sm" style={{whiteSpace: 'pre-wrap'}}>{comment.content}</Text>
                             <Text size="xs"
-                                  c="dimmed">{new Date(comment.created_at).toLocaleString('zh-CN', {timeStyle: 'short'})}</Text>
+                                  c="dimmed">{formatInBeijingTime(comment.created_at, 'yyyy年M月d日 HH:mm')}</Text>
                         </Box>
                         <ActionMenu
                             isOwner={currentUserId === comment.user_id}

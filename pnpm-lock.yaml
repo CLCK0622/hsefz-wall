@@ -44,6 +44,12 @@ importers:
       clerk:
         specifier: ^0.8.3
         version: 0.8.3
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
+      date-fns-tz:
+        specifier: ^3.2.0
+        version: 3.2.0(date-fns@4.1.0)
       dns:
         specifier: ^0.2.2
         version: 0.2.2
@@ -1554,6 +1560,14 @@ packages:
   cycle@1.0.3:
     resolution: {integrity: sha512-TVF6svNzeQCOpjCqsy0/CSy8VgObG3wXusJ73xW2GbG5rGx7lC8zxDSURicsXI2UsGdi2L0QNRCi745/wUDvsA==}
     engines: {node: '>=0.4.0'}
+
+  date-fns-tz@3.2.0:
+    resolution: {integrity: sha512-sg8HqoTEulcbbbVXeg84u5UnlsQa8GS5QXMqjjYIhS4abEVVKIUwe0/l/UhrZdKaL/W5eWZNlbTeEIiOXTcsBQ==}
+    peerDependencies:
+      date-fns: ^3.0.0 || ^4.0.0
+
+  date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
   debug@0.6.0:
     resolution: {integrity: sha512-2vIZf67+gMicLu8McscD1NNhMWbiTSJkhlByoTA1Gw54zOb/9IlxylYG+Kr9z1X2wZTHh1AMSp+YiMjYtLkVUA==}
@@ -5157,6 +5171,12 @@ snapshots:
   ctype@0.5.3: {}
 
   cycle@1.0.3: {}
+
+  date-fns-tz@3.2.0(date-fns@4.1.0):
+    dependencies:
+      date-fns: 4.1.0
+
+  date-fns@4.1.0: {}
 
   debug@0.6.0: {}
 

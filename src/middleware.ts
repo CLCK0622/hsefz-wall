@@ -32,9 +32,13 @@ export default clerkMiddleware(async (auth, req) => {
     // 从最新的、最准确的用户数据中提取信息
     const userRole = (clerkUser.publicMetadata as { role?: string })?.role;
     const isVerified = (clerkUser.publicMetadata as { verified?: boolean })?.verified;
-    const primaryEmail = clerkUser.primaryEmailAddress?.emailAddress;
 
-    if (userRole !== 'Admin' && userRole !== 'SuperAdmin' && !isVerified && !primaryEmail?.endsWith('@hsefz.cn') && !isVerificationRoute(req)) {
+    if (
+        userRole !== 'Admin' &&
+        userRole !== 'SuperAdmin' &&
+        !isVerified &&
+        !isVerificationRoute(req)
+    ) {
         const verifyUrl = new URL('/verify', req.url);
         return NextResponse.redirect(verifyUrl);
     }
