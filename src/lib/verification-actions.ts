@@ -111,10 +111,13 @@ export async function submitVerificationRequestAction(
         return {success: false, message: '请上传学生卡照片'};
     }
 
+    const originalFilename = studentCardFile.name;
+    const uniqueFilename = `${originalFilename}-${Date.now()}`;
+
     // 3. 将文件上传逻辑移到 Server Action 内部
     let imageUrl = '';
     try {
-        const blob = await put(studentCardFile.name, studentCardFile, {access: 'public'});
+        const blob = await put(uniqueFilename, studentCardFile, {access: 'public'});
         imageUrl = blob.url;
     } catch (error) {
         return {success: false, message: '图片上传失败，请重试'};

@@ -58,7 +58,8 @@ export function CreatePostForm({ userRole }: { userRole?: string }) {
             // 1. 上传图片
             const imageUrls = await Promise.all(
                 files.map(async (file) => {
-                    const response = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+                    const uniqueFilename = `${file.name}-${Date.now()}`;
+                    const response = await fetch(`/api/upload?filename=${encodeURIComponent(uniqueFilename)}`, {
                         method: 'POST', body: file,
                     });
                     if (!response.ok) throw new Error('图片上传失败');
