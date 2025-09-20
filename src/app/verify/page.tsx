@@ -22,6 +22,18 @@ import { autoVerifyAction, submitVerificationRequestAction, getUserVerificationS
 import { notifications } from '@mantine/notifications';
 import { IconInfoCircle } from '@tabler/icons-react';
 import Link from "next/link";
+import { useFormState, useFormStatus } from 'react-dom';
+
+function AutoVerifySubmitButton() {
+    const { pending } = useFormStatus();
+    return <Button type="submit" mt="md" loading={pending}>验证</Button>;
+}
+
+function ManualVerifySubmitButton() {
+    const { pending } = useFormStatus();
+    return <Button type="submit" mt="md" loading={pending}>提交申请</Button>;
+}
+
 
 export default function VerifyPage() {
     // Hooks for controlling modals
@@ -37,65 +49,31 @@ export default function VerifyPage() {
     const router = useRouter();
     const manualFormRef = useRef<HTMLFormElement>(null);
 
-    // 1. 页面加载时，获取用户当前的认证申请状态
+    // 为两个 Action 分别设置 useFormState
+    const [autoVerifyState, autoVerifyFormAction] = useFormState(autoVerifyAction, { success: false, message: '' });
+    const [manualVerifyState, manualVerifyFormAction] = useFormState(submitVerificationRequestAction, { success: false, message: '' });
+
+    // 使用 useEffect 来处理成功后的逻辑
+    useEffect(() => {
+        if (autoVerifyState.success) {
+            notifications.show({ color: 'green', title: '成功', message: '验证成功！即将跳转到主页...' });
+            window.location.href = '/';
+        }
+    }, [autoVerifyState]);
+
+    useEffect(() => {
+        if (manualVerifyState.success) {
+            notifications.show({ color: 'green', title: '成功', message: manualVerifyState.message });
+            setVerificationStatus('pending'); // 更新页面状态为“审核中”
+            closeManualModal();
+        }
+    }, [manualVerifyState]);
+
     useEffect(() => {
         getUserVerificationStatusAction().then(status => {
             setVerificationStatus(status as any);
         });
     }, []);
-
-    // 2. 处理自动验证的提交
-    const handleAutoVerifySubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        setIsSubmitting(true);
-        const formData = new FormData(event.currentTarget);
-
-        try {
-            const result = await autoVerifyAction(formData);
-            if (result.success) {
-                notifications.show({ color: 'green', title: '成功', message: '验证成功！即将跳转到主页...' });
-                // 验证成功后，强制刷新页面以让中间件重新评估权限
-                window.location.href = '/';
-            }
-        } catch (error: any) {
-            notifications.show({ color: 'red', title: '验证失败', message: error.message });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    // 3. 处理手动验证的提交 (逻辑基本不变)
-    const handleManualSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (!studentCardFile) { notifications.show({ color: 'red', message: '请上传学生卡照片' }); return; }
-        if (!manualFormRef.current) return;
-
-        setIsSubmitting(true);
-        try {
-            const uploadResponse = await fetch(`/api/upload?filename=${encodeURIComponent(studentCardFile.name)}`, { method: 'POST', body: studentCardFile });
-            if (!uploadResponse.ok) throw new Error('图片上传失败');
-            const blob = await uploadResponse.json();
-
-            const formData = new FormData(manualFormRef.current);
-            formData.append('imageUrl', blob.url);
-
-            const dataToSubmit = {
-                realName: formData.get('realName') as string,
-                classNumber: formData.get('classNumber') as string,
-                email: formData.get('email') as string,
-                imageUrl: blob.url,
-            };
-
-            const result = await submitVerificationRequestAction(dataToSubmit);
-            notifications.show({ color: 'green', title: '成功', message: result.message });
-            setVerificationStatus('pending');
-            closeManualModal();
-        } catch (error: any) {
-            notifications.show({ color: 'red', title: '错误', message: error.message });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
 
     const primaryEmail = user?.primaryEmailAddress?.emailAddress;
     const isHsefzEmail = primaryEmail?.endsWith('@hsefz.cn');
@@ -161,31 +139,37 @@ export default function VerifyPage() {
 
             {/* 自动验证 Modal */}
             <Modal opened={autoModalOpened} onClose={closeAutoModal} title="自动身份验证" centered zIndex={3000}>
-                <form onSubmit={handleAutoVerifySubmit}>
+                <form action={autoVerifyFormAction}>
                     <Stack>
                         <Text size="sm">请输入您在学校登记的真实姓名，以匹配您的邮箱 `{primaryEmail}`。</Text>
                         <TextInput name="realName" label="真实姓名" withAsterisk />
-                        <Button type="submit" mt="md" loading={isSubmitting}>验证</Button>
+
+                        {/* 6. 在表单中显示 Server Action 返回的错误信息 */}
+                        {autoVerifyState.message && !autoVerifyState.success && (
+                            <Text c="red" size="sm" mt="xs">{autoVerifyState.message}</Text>
+                        )}
+
+                        <AutoVerifySubmitButton />
                     </Stack>
                 </form>
             </Modal>
 
             {/* 手动验证 Modal */}
-            <Modal opened={manualModalOpened} onClose={closeManualModal} title="手动批准申请" centered zIndex={3000}>
-                <form ref={manualFormRef} onSubmit={handleManualSubmit}>
+            <Modal opened={manualModalOpened} onClose={closeManualModal} title="手动批准申请" centered>
+                {/* 将 form 的 action 指向 manualVerifyFormAction */}
+                <form action={manualVerifyFormAction}>
                     <Stack>
                         <TextInput name="realName" label="真实姓名" withAsterisk />
                         <TextInput name="classNumber" label="四位数字班级 (如 2501)" withAsterisk />
                         <TextInput name="email" label="hsefz.cn 邮箱" withAsterisk />
-                        <FileInput
-                            label="学生卡照片或你和墙微信的好友截图等能证明你身份的图片"
-                            placeholder="点击上传"
-                            value={studentCardFile}
-                            onChange={setStudentCardFile}
-                            withAsterisk
-                            accept="image/*"
-                        />
-                        <Button type="submit" mt="md" loading={isSubmitting}>提交申请</Button>
+                        <FileInput name="studentCardFile" label="学生卡照片" placeholder="点击上传" withAsterisk accept="image/*" />
+
+                        {/* 显示手动验证的错误信息 */}
+                        {manualVerifyState.message && !manualVerifyState.success && (
+                            <Text c="red" size="sm" mt="xs">{manualVerifyState.message}</Text>
+                        )}
+
+                        <ManualVerifySubmitButton />
                     </Stack>
                 </form>
             </Modal>
