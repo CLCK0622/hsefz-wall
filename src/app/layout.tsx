@@ -9,6 +9,7 @@ import '@mantine/notifications/styles.css';
 import Header from "@/components/Header/Header";
 import {Footer} from "@/components/Footer/Footer";
 import "./main.scss";
+import {FeedbackWidget} from "@/components/FeedbackWidget/FeedbackWidget";
 
 export const metadata = {
     title: '张江多功能墙',
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <ClerkProvider localization={zhCN}>
             <html lang="zh">
-            <head><ColorSchemeScript /></head>
+            <head><ColorSchemeScript /><script async src="https://tally.so/widgets/embed.js"></script></head>
             <body>
             <MantineProvider defaultColorScheme="light">
                 {/* 👇 Wrap with ModalsProvider */}
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         {children}
                     </div>
                     <Footer />
+                    <FeedbackWidget />
                 </ModalsProvider>
             </MantineProvider>
             </body>
