@@ -13,6 +13,8 @@ export default async function VerificationsPage() {
         .orderBy('created_at', 'asc')
         .execute();
 
+    console.log('[Admin Verifications Page] Fetched pending requests:', pendingVerifications);
+
     return (
         <>
             <Container py="xl">
