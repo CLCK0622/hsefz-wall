@@ -93,15 +93,10 @@ export function PostCard({post, onClick, className}: PostCardProps) {
                     </ActionIcon>
                     <Text size="sm">{post.like_count}</Text>
 
-                    {/* 5. 仅在非移动端显示评论图标和数量 */}
-                    {!isMobile && (
-                        <>
-                            <ActionIcon variant="subtle" color="gray" style={{cursor: 'default', marginLeft: '8px'}}>
-                                <IconMessageCircle/>
-                            </ActionIcon>
-                            <Text size="sm">{post.comment_count}</Text>
-                        </>
-                    )}
+                    <ActionIcon variant="subtle" color="gray" style={{cursor: 'default', marginLeft: '8px'}}>
+                        <IconMessageCircle/>
+                    </ActionIcon>
+                    <Text size="sm">{post.comment_count}</Text>
                 </Group>
             </Flex>
         </Card>
