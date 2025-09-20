@@ -27,7 +27,7 @@ export const sendEmail = async (data: EmailPayload) => {
         finalHtml = `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
         <div style="max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-          <h1 style="color: #333; text-align: center;">张江多功能墙 - 您的验证码</h1>
+          <h2 style="color: #333; text-align: center;">张江多功能墙 - 您的验证码</h2>
           <p>您好！您的验证码是：</p>
           <p style="text-align: center; margin: 20px 0;">
             <span style="font-size: 28px; font-weight: bold; color: #007bff; letter-spacing: 4px; border: 1px solid #ddd; padding: 12px 20px; border-radius: 4px; background-color: #f4f4f4;">

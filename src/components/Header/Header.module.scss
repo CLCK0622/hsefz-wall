@@ -6,6 +6,7 @@
     padding: 0 var(--mantine-spacing-md); // 使用 Mantine 的间距变量
     height: 60px;
     min-height: 60px;
+    flex-shrink: 0;
     position: sticky;
     top: 0;
     z-index: 1001; // 确保在 Modal 之上
