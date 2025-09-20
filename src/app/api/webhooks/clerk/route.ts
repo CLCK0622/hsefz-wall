@@ -85,7 +85,7 @@ export async function POST(req: Request) {
     if (eventType === 'email.created') {
         const emailData = evt.data;
         // 直接从 webhook payload 中尝试获取 otp_code
-        const otpCode = (emailData as any).otp_code;
+        const otpCode = (emailData as any).data?.otp_code;
 
         try {
             await sendEmail({
