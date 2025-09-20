@@ -20,17 +20,14 @@ async function approveUser(clerkId: string, name: string, email?: string) {
         const existingEmail = user.emailAddresses.find(e => e.emailAddress === email);
 
         if (existingEmail) {
-            await (await clerkClient()).users.updateUser(clerkId, {primaryEmailAddressID: existingEmail.id});
+            // 只有当这个邮箱不是当前主邮箱时，才执行更新操作
+            if (user.primaryEmailAddressId !== existingEmail.id) {
+                await (await clerkClient()).users.updateUser(clerkId, { primaryEmailAddressID: existingEmail.id });
+            }
         } else {
-            // --- 核心修改在这里 ---
-            // 使用正确的 clerkClient().emailAddresses.createEmailAddress() 方法
-            const newEmail = await (await clerkClient()).emailAddresses.createEmailAddress({
-                userId: clerkId,
-                emailAddress: email,
-            });
-            // --------------------
-
-            await (await clerkClient()).users.updateUser(clerkId, {primaryEmailAddressID: newEmail.id});
+            // 如果邮箱不存在，则创建并设为主邮箱
+            const newEmail = await (await clerkClient()).emailAddresses.createEmailAddress({ userId: clerkId, emailAddress: email });
+            await (await clerkClient()).users.updateUser(clerkId, { primaryEmailAddressID: newEmail.id });
         }
     }
 
