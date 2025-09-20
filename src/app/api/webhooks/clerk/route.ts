@@ -83,14 +83,20 @@ export async function POST(req: Request) {
 
     // --- 处理邮件发送请求 ---
     if (eventType === 'email.created') {
-        const { to_email_address, subject, body } = evt.data;
-        if (to_email_address && body) {
-            try {
-                await sendEmail({ to: to_email_address, subject: (subject ? subject : "张江多功能墙"), html: body });
-            } catch (error) {
-                console.error('Failed to send email:', error);
-                return new Response('Error sending email', { status: 500 });
-            }
+        const emailData = evt.data;
+        // 直接从 webhook payload 中尝试获取 otp_code
+        const otpCode = (emailData as any).otp_code;
+
+        try {
+            await sendEmail({
+                to: emailData.to_email_address || '',
+                subject: emailData.subject || '来自张江多功能墙的邮件',
+                html: emailData.body || '<p>你好！这是一封来自张江多功能墙的邮件。</p>',
+                otp_code: otpCode,
+            });
+        } catch (error) {
+            console.error('Failed to send email:', error);
+            return new Response('Error sending email', { status: 500 });
         }
     }
 
