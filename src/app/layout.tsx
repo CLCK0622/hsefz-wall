@@ -8,6 +8,7 @@ import { Notifications } from '@mantine/notifications';
 import '@mantine/notifications/styles.css';
 import Header from "@/components/Header/Header";
 import {Footer} from "@/components/Footer/Footer";
+import "./main.scss";
 
 export const metadata = {
     title: '张江多功能墙',
@@ -25,7 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <ModalsProvider>
                     <Notifications />
                     <Header />
-                    {children}
+                    <div className="main-content">
+                        {children}
+                    </div>
                     <Footer />
                 </ModalsProvider>
             </MantineProvider>

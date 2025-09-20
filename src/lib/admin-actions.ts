@@ -84,3 +84,26 @@ export async function getPendingVerificationCountAction() {
 
     return Number(result?.count) || 0;
 }
+
+export async function updateUserVerifiedStatusAction(userId: string, isVerified: boolean) {
+    // 权限检查：确保只有 SuperAdmin 可以执行此操作
+    const { sessionClaims } = await auth();
+    const userRole = (sessionClaims?.metadata as { role?: string })?.role;
+    if (userRole !== 'SuperAdmin') {
+        throw new Error('无权操作');
+    }
+
+    // 获取目标用户的当前元数据，以防覆盖掉 role 等其他信息
+    const user = await (await clerkClient()).users.getUser(userId);
+
+    // 更新 Clerk 上的 publicMetadata
+    await (await clerkClient()).users.updateUserMetadata(userId, {
+        publicMetadata: {
+            ...user.publicMetadata,
+            verified: isVerified
+        }
+    });
+
+    // 重新验证路径，让页面数据刷新
+    revalidatePath('/admin/users');
+}

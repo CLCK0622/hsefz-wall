@@ -1,59 +1,39 @@
 // app/verify/page.tsx
 'use client';
-import {
-    Container,
-    Title,
-    Text,
-    Button,
-    Modal,
-    TextInput,
-    FileInput,
-    Stack,
-    Alert,
-    Center,
-    Loader,
-    Paper
-} from '@mantine/core';
+import { Container, Title, Text, Button, Modal, TextInput, FileInput, Stack, Alert, Center, Loader, Paper, Group } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
-import { autoVerifyAction, submitVerificationRequestAction, getUserVerificationStatusAction } from '@/lib/verification-actions';
+import { getUserVerificationStatusAction } from '@/lib/verification-actions';
 import { notifications } from '@mantine/notifications';
 import { IconInfoCircle } from '@tabler/icons-react';
-import Link from "next/link";
+import Link from 'next/link';
 import { useFormState, useFormStatus } from 'react-dom';
+import { autoVerifyAction, submitVerificationRequestAction } from '@/lib/verification-actions';
 
+// 自动验证的提交按钮，自带加载状态
 function AutoVerifySubmitButton() {
     const { pending } = useFormStatus();
     return <Button type="submit" mt="md" loading={pending}>验证</Button>;
 }
 
+// 手动验证的提交按钮，自带加载状态
 function ManualVerifySubmitButton() {
     const { pending } = useFormStatus();
     return <Button type="submit" mt="md" loading={pending}>提交申请</Button>;
 }
 
-
 export default function VerifyPage() {
-    // Hooks for controlling modals
     const [manualModalOpened, { open: openManualModal, close: closeManualModal }] = useDisclosure(false);
     const [autoModalOpened, { open: openAutoModal, close: closeAutoModal }] = useDisclosure(false);
-
-    // State for form submissions and user status
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [studentCardFile, setStudentCardFile] = useState<File | null>(null);
     const [verificationStatus, setVerificationStatus] = useState<'loading' | 'pending' | 'rejected' | null>('loading');
-
     const { user } = useUser();
-    const router = useRouter();
-    const manualFormRef = useRef<HTMLFormElement>(null);
 
     // 为两个 Action 分别设置 useFormState
     const [autoVerifyState, autoVerifyFormAction] = useFormState(autoVerifyAction, { success: false, message: '' });
     const [manualVerifyState, manualVerifyFormAction] = useFormState(submitVerificationRequestAction, { success: false, message: '' });
 
-    // 使用 useEffect 来处理成功后的逻辑
+    // 处理成功后的逻辑
     useEffect(() => {
         if (autoVerifyState.success) {
             notifications.show({ color: 'green', title: '成功', message: '验证成功！即将跳转到主页...' });
@@ -64,7 +44,7 @@ export default function VerifyPage() {
     useEffect(() => {
         if (manualVerifyState.success) {
             notifications.show({ color: 'green', title: '成功', message: manualVerifyState.message });
-            setVerificationStatus('pending'); // 更新页面状态为“审核中”
+            setVerificationStatus('pending');
             closeManualModal();
         }
     }, [manualVerifyState]);
@@ -76,12 +56,9 @@ export default function VerifyPage() {
     }, []);
 
     const primaryEmail = user?.primaryEmailAddress?.emailAddress;
-    const isHsefzEmail = primaryEmail?.endsWith('@hsefz.cn');
+    const isHsefzEmail = !!primaryEmail?.endsWith('@hsefz.cn');
 
-    // ------------------- 主渲染逻辑 -------------------
-    if (verificationStatus === 'loading') {
-        return <Center h="100vh"><Loader /></Center>;
-    }
+    if (verificationStatus === 'loading') { return <Center h="100vh"><Loader /></Center>; }
 
     if (verificationStatus === 'pending') {
         return (
@@ -164,11 +141,9 @@ export default function VerifyPage() {
                         <TextInput name="email" label="hsefz.cn 邮箱" withAsterisk />
                         <FileInput name="studentCardFile" label="学生卡照片" placeholder="点击上传" withAsterisk accept="image/*" />
 
-                        {/* 显示手动验证的错误信息 */}
                         {manualVerifyState.message && !manualVerifyState.success && (
                             <Text c="red" size="sm" mt="xs">{manualVerifyState.message}</Text>
                         )}
-
                         <ManualVerifySubmitButton />
                     </Stack>
                 </form>

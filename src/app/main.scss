@@ -1,0 +1,13 @@
+
+html, body, #__next {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex-grow: 1; /* 核心：让主内容区占据所有剩余空间 */
+}
