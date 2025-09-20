@@ -148,7 +148,7 @@ export default function VerifyPage() {
                 </Paper>
             </Stack>
 
-            <Modal opened={autoModalOpened} onClose={closeAutoModal} title="自动身份验证" centered>
+            <Modal opened={autoModalOpened} onClose={closeAutoModal} title="自动身份验证" centered zIndex={3000}>
                 <form ref={autoFormRef} onSubmit={(e) => { e.preventDefault(); handleAutoVerifySubmit(); }}>
                     <Stack>
                         <Text size="sm">请输入您在学校登记的真实姓名，以匹配您的邮箱 `{primaryEmail}`。</Text>
@@ -158,13 +158,13 @@ export default function VerifyPage() {
                 </form>
             </Modal>
 
-            <Modal opened={manualModalOpened} onClose={closeManualModal} title="手动批准申请" centered>
+            <Modal opened={manualModalOpened} onClose={closeManualModal} title="手动批准申请" centered zIndex={3000}>
                 <form ref={manualFormRef} onSubmit={(e) => { e.preventDefault(); handleManualSubmit(); }}>
                     <Stack>
                         <TextInput name="realName" label="真实姓名" withAsterisk />
                         <TextInput name="classNumber" label="四位数字班级 (如 2501)" withAsterisk />
                         <TextInput name="email" label="hsefz.cn 邮箱" withAsterisk />
-                        <FileInput name="studentCardFile" label="学生卡照片" placeholder="点击上传" withAsterisk accept="image/*" />
+                        <FileInput name="studentCardFile" label="学生卡照片或和墙微信好友截图等能证明你身份的图片" placeholder="点击上传" withAsterisk accept="image/*" />
                         <Button type="submit" mt="md" loading={isManualSubmitting}>提交申请</Button>
                     </Stack>
                 </form>
