@@ -10,6 +10,7 @@ import Header from "@/components/Header/Header";
 import {Footer} from "@/components/Footer/Footer";
 import "./main.scss";
 import {FeedbackWidget} from "@/components/FeedbackWidget/FeedbackWidget";
+import {Watermark} from "@/components/Watermark/Watermark";
 
 export const metadata = {
     title: '张江多功能墙',
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         {children}
                     </div>
                     <Footer />
+                    <Watermark />
                     <FeedbackWidget />
                 </ModalsProvider>
             </MantineProvider>
