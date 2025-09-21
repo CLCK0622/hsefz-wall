@@ -24,7 +24,7 @@ export function Watermark() {
             container.className = classes.watermarkContainer;
 
             // Create the grid of text nodes
-            Array.from({ length: 500 }).forEach(() => {
+            Array.from({ length: 100 }).forEach(() => {
                 const textNode = document.createElement('div');
                 textNode.className = classes.watermarkText;
                 textNode.appendChild(document.createTextNode(watermarkText));

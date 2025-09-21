@@ -10,12 +10,12 @@
     overflow: hidden;
     pointer-events: none; /* 关键：让水印层不影响鼠标点击、选择等操作 */
     z-index: 9999; /* 确保在最顶层 */
-    opacity: 0.01; /* 关键：极低的透明度，使其难以察觉 */
+    opacity: 0.005; /* 关键：极低的透明度，使其难以察觉 */
 }
 
 .watermarkText {
     color: #000;
-    font-size: 14px;
+    font-size: 36px;
     padding: 30px; /* 控制水印之间的间距 */
     transform: rotate(-15deg); /* 倾斜水印 */
     user-select: none; /* 防止用户选中水印文字 */
