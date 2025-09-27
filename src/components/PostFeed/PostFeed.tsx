@@ -312,7 +312,7 @@ export function PostFeed({posts, currentUserId, currentUserRole}: {
                         </Box>
                     ) : (
                         // --- 桌面端全新布局 (用 Box 代替 Grid) ---
-                        <Box style={{ display: 'flex', height: '100%', maxHeight: '88vh', minHeight: '50vh' }}>
+                        <Box style={{ display: 'flex', height: '100%', maxHeight: '80vh', minHeight: '80vh' }}>
                             {/* 左侧栏 */}
                             <Box style={{ flex: 7, borderRight: '1px solid #dee2e6', overflowY: 'auto' }}>
                                 <PostContentView post={selectedPost} actionMenu={postActionMenu} />
