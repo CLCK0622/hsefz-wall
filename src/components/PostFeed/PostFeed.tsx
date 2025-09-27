@@ -1,6 +1,6 @@
 // components/PostFeed/PostFeed.tsx
 'use client';
-import {useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
     Box,
     Modal,
@@ -24,7 +24,16 @@ import {useDisclosure, useMediaQuery} from '@mantine/hooks';
 import {Carousel} from '@mantine/carousel';
 import '@mantine/carousel/styles.css';
 import {PostCard, PostWithDetails} from '../PostCard/PostCard';
-import {IconDotsVertical, IconUserCircle, IconX, IconEdit, IconTrash, IconFlag} from '@tabler/icons-react';
+import {toggleLikeAction} from '@/lib/social-actions';
+import {
+    IconDotsVertical,
+    IconUserCircle,
+    IconX,
+    IconEdit,
+    IconTrash,
+    IconFlag,
+    IconHeartFilled, IconHeart, IconMessageCircle
+} from '@tabler/icons-react';
 import {addCommentAction, getCommentsAction} from '@/lib/social-actions';
 import {deletePostAction, deleteCommentAction, reportAction} from '@/lib/moderation-actions';
 import styles from './PostFeed.module.scss';
@@ -149,6 +158,14 @@ const PostContentView = ({post, actionMenu}: PostContentViewProps) => {
     const authorName = post.is_anonymous ? '匿名用户' : post.user?.username || '未知用户';
     const authorAvatar = post.is_anonymous ? null : post.user?.avatar_url;
     const postDate = formatInBeijingTime(post.created_at, 'yyyy年M月d日 HH:mm');
+
+    const handleLikeClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        React.startTransition(() => {
+            toggleLikeAction(post.id);
+        });
+    }
+
     return (
         <Box>
             {post.images.length > 0 && (
@@ -175,7 +192,13 @@ const PostContentView = ({post, actionMenu}: PostContentViewProps) => {
                         <div><Text size="sm" fw={500}>{authorName}</Text><Text size="xs" c="dimmed">{postDate}</Text>
                         </div>
                     </Group>
-                    {actionMenu}
+                    <Group wrap="nowrap">
+                        <ActionIcon variant="subtle" color="gray" onClick={handleLikeClick}>
+                            {post.has_liked ? <IconHeartFilled style={{color: 'red'}}/> : <IconHeart/>}
+                        </ActionIcon>
+                        <Text size="sm">{post.like_count}</Text>
+                        {actionMenu}
+                    </Group>
                 </Group>
                 {post.is_announcement && <Badge color="yellow" mt="sm">公告</Badge>}
                 <Text my="md" style={{whiteSpace: 'pre-wrap'}}>{post.content}</Text>
