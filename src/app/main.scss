@@ -6,8 +6,11 @@ html, body, #__next {
 body {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 
 .main-content {
     flex-grow: 1; /* 核心：让主内容区占据所有剩余空间 */
+    display: flex;
+    flex-direction: column;
 }

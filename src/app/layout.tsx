@@ -17,7 +17,7 @@ export const metadata = {
     description: '瀚海星云，分享此刻',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout(props: { children: React.ReactNode; modal: React.ReactNode; }) {
     return (
         <ClerkProvider localization={zhCN}>
             <html lang="zh">
@@ -29,8 +29,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <Notifications />
                     <Header />
                     <div className="main-content">
-                        {children}
+                        {props.children}
                     </div>
+                    {props.modal}
                     <Footer />
                     <Watermark />
                     <FeedbackWidget />

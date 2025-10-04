@@ -39,7 +39,6 @@ export async function deletePostAction(postId: number) {
     }
 
     await db.deleteFrom('posts').where('id', '=', postId).execute();
-    revalidatePath('/');
 }
 
 // Action to delete a comment
@@ -58,7 +57,6 @@ export async function deleteCommentAction(commentId: number) {
     }
 
     await db.deleteFrom('comments').where('id', '=', commentId).execute();
-    revalidatePath('/');
 }
 
 // Action to report content
@@ -130,6 +128,4 @@ export async function updatePostAction(formData: FormData) {
         })
         .where('id', '=', postId)
         .execute();
-
-    revalidatePath('/');
 }

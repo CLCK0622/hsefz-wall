@@ -30,9 +30,6 @@ export async function toggleLikeAction(postId: number) {
             .values({ user_id: user.id, post_id: postId })
             .execute();
     }
-
-    // Revalidate the path to update the UI
-    revalidatePath('/');
 }
 
 // Action to add a comment
@@ -48,8 +45,6 @@ export async function addCommentAction(postId: number, content: string) {
     await db.insertInto('comments')
         .values({ post_id: postId, user_id: user.id, content: content.trim() })
         .execute();
-
-    revalidatePath('/');
 }
 
 // Action to fetch comments for a post
