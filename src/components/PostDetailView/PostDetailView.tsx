@@ -13,6 +13,7 @@ import { modals } from '@mantine/modals';
 import { EditPostForm } from "@/components/EditPostForm/EditPostForm";
 import {useRouter} from "next/navigation";
 import {useMediaQuery} from "@mantine/hooks";
+import {usePostStore} from "@/lib/store";
 
 // (这里的 Comment 类型定义、ActionMenu、CommentInput、PostContentView 辅助组件可以从 PostFeed.tsx 移过来)
 type Comment = { id: number; content: string; created_at: Date; user_id: number; username: string; avatar_url: string | null; };
@@ -115,18 +116,17 @@ function CommentInput({onSubmit}: CommentInputProps) {
 interface PostContentViewProps {
     post: PostWithDetails;
     actionMenu: React.ReactNode;
+    onLikeToggle: () => void;
 }
 
-const PostContentView = ({post, actionMenu}: PostContentViewProps) => {
+const PostContentView = ({post, actionMenu, onLikeToggle}: PostContentViewProps) => {
     const authorName = post.is_anonymous ? '匿名用户' : post.user?.username || '未知用户';
     const authorAvatar = post.is_anonymous ? null : post.user?.avatar_url;
     const postDate = formatInBeijingTime(post.created_at, 'yyyy年M月d日 HH:mm');
 
     const handleLikeClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        React.startTransition(() => {
-            toggleLikeAction(post.id);
-        });
+        onLikeToggle();
     }
 
     return (
@@ -177,12 +177,32 @@ interface PostDetailViewProps {
     onClose?: () => void; // 用于关闭 Modal 的回调
 }
 
-export function PostDetailView({ post, currentUserId, currentUserRole, onClose }: PostDetailViewProps) {
+export function PostDetailView({ post: initialPost, currentUserId, currentUserRole, onClose }: PostDetailViewProps) {
+    const [optimisticPost, setOptimisticPost] = useState(initialPost);
     const [comments, setComments] = useState<Comment[]>([]);
     const [isLoadingComments, setIsLoadingComments] = useState(true);
     const isAdmin = currentUserRole === 'Admin' || currentUserRole === 'SuperAdmin';
 
     const router = useRouter(); // 2. 获取 router 实例
+
+    const globalToggleLike = usePostStore(state => state.toggleLike);
+    useEffect(() => {
+        // 当传入的 post prop 变化时，同步更新本地状态
+        setOptimisticPost(initialPost);
+    }, [initialPost]);
+
+    // 6. 创建本地的点赞处理函数
+    const handleLikeToggle = () => {
+        // a. 立即乐观更新本地 UI
+        setOptimisticPost(currentPost => {
+            const newLikedState = !currentPost.has_liked;
+            const newLikeCount = newLikedState ? currentPost.like_count + 1 : currentPost.like_count - 1;
+            return { ...currentPost, has_liked: newLikedState, like_count: newLikeCount };
+        });
+
+        // b. 调用全局 store 的方法，同步更新主页背景的状态，并触发后端调用
+        globalToggleLike(initialPost.id);
+    };
 
     // 3. 定义一个智能的关闭处理函数
     const handleClose = onClose ? onClose : () => router.push('/');
@@ -196,14 +216,14 @@ export function PostDetailView({ post, currentUserId, currentUserRole, onClose }
     };
 
     useEffect(() => {
-        if (post) {
-            fetchComments(post.id);
+        if (initialPost) {
+            fetchComments(initialPost.id);
         }
-    }, [post]);
+    }, [initialPost]);
 
     const handleAddComment = async (content: string) => {
-        await addCommentAction(post.id, content);
-        fetchComments(post.id);
+        await addCommentAction(initialPost.id, content);
+        fetchComments(initialPost.id);
     };
 
     const openReportModal = (contentId: number, contentType: 'post' | 'comment') => {
@@ -245,7 +265,7 @@ export function PostDetailView({ post, currentUserId, currentUserRole, onClose }
                         <ActionMenu
                             isOwner={currentUserId === comment.user_id}
                             isAdmin={isAdmin}
-                            onDelete={() => deleteCommentAction(comment.id).then(() => fetchComments(post.id))}
+                            onDelete={() => deleteCommentAction(comment.id).then(() => fetchComments(initialPost.id))}
                             onReport={() => openReportModal(comment.id, 'comment')}
                             onEdit={function (): void {
                                 throw new Error('Function not implemented.');
@@ -257,14 +277,14 @@ export function PostDetailView({ post, currentUserId, currentUserRole, onClose }
 
     const postActionMenu = (
         <ActionMenu
-            isOwner={currentUserId === post.user_id}
+            isOwner={currentUserId === initialPost.user_id}
             isAdmin={isAdmin}
             onDelete={() => {
-                deletePostAction(post.id);
+                deletePostAction(initialPost.id);
                 onClose?.();
             }}
-            onReport={() => openReportModal(post.id, 'post')}
-            onEdit={() => handleOpenEditModal(post)}
+            onReport={() => openReportModal(initialPost.id, 'post')}
+            onEdit={() => handleOpenEditModal(initialPost)}
         />
     );
 
@@ -280,7 +300,7 @@ export function PostDetailView({ post, currentUserId, currentUserRole, onClose }
                     </Group>
                     {/* 2. 可伸缩、可滚动的内容区 */}
                     <Box style={{ flex: 1, overflowY: 'auto' }}>
-                        <PostContentView post={post} actionMenu={postActionMenu} />
+                        <PostContentView post={optimisticPost} actionMenu={postActionMenu} onLikeToggle={handleLikeToggle} />
                         {commentsList}
                     </Box>
                     {/* 3. 固定的底部输入框 */}
@@ -291,7 +311,7 @@ export function PostDetailView({ post, currentUserId, currentUserRole, onClose }
                 <Box style={{ display: 'flex', height: '100%', maxHeight: '80vh', minHeight: '80vh' }}>
                     {/* 左侧栏 */}
                     <Box style={{ flex: 7, borderRight: '1px solid #dee2e6', overflowY: 'auto' }}>
-                        <PostContentView post={post} actionMenu={postActionMenu} />
+                        <PostContentView post={optimisticPost} actionMenu={postActionMenu} onLikeToggle={handleLikeToggle} />
                     </Box>
                     {/* 右侧栏 */}
                     <Box style={{ flex: 5, display: 'flex', flexDirection: 'column' }}>
