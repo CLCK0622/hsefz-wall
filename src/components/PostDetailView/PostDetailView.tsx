@@ -272,7 +272,7 @@ export function PostDetailView({ post, currentUserId, currentUserRole, onClose }
         (
             useMediaQuery('(max-width: 768px)') ? (
                 // --- 移动端全新布局 ---
-                <Box style={{ display: 'flex', flexDirection: 'column', height: '100svh' }}>
+                <Box style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '100svh', maxHeight: '100svh' }}>
                     {/* 1. 固定的头部 */}
                     <Group justify='space-between' p='xs' style={{ borderBottom: '1px solid #dee2e6' }}>
                         <Text fw={500}>帖子详情</Text>
