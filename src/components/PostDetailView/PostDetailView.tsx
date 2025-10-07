@@ -12,6 +12,7 @@ import { IconDotsVertical, IconUserCircle, IconEdit, IconTrash, IconFlag, IconHe
 import { modals } from '@mantine/modals';
 import { EditPostForm } from "@/components/EditPostForm/EditPostForm";
 import {useRouter} from "next/navigation";
+import {useMediaQuery} from "@mantine/hooks";
 
 // (这里的 Comment 类型定义、ActionMenu、CommentInput、PostContentView 辅助组件可以从 PostFeed.tsx 移过来)
 type Comment = { id: number; content: string; created_at: Date; user_id: number; username: string; avatar_url: string | null; };
@@ -268,23 +269,46 @@ export function PostDetailView({ post, currentUserId, currentUserRole, onClose }
     );
 
     return (
-        // 这里是我们之前在 PostFeed 中为桌面端设计的 Flexbox 布局
-        <Box style={{ display: 'flex', height: '100%'}}>
-            {/* 左侧栏 */}
-            <Box style={{ flex: 7, borderRight: '1px solid #dee2e6', overflowY: 'auto' }}>
-                <PostContentView post={post} actionMenu={postActionMenu} />
-            </Box>
-            {/* 右侧栏 */}
-            <Box style={{ flex: 5, display: 'flex', flexDirection: 'column' }}>
-                <Group justify='space-between' p='sm' style={{ borderBottom: '1px solid #dee2e6' }}>
-                    <Text fw={500}>评论 ({comments.length})</Text>
-                    <ActionIcon onClick={handleClose} variant='subtle'><IconX /></ActionIcon>
-                </Group>
-                <Box style={{ flex: 1, overflowY: 'auto' }}>
-                    {commentsList}
+        (
+            useMediaQuery('(max-width: 768px)') ? (
+                // --- 移动端全新布局 ---
+                <Box style={{ display: 'flex', flexDirection: 'column', height: '100svh' }}>
+                    {/* 1. 固定的头部 */}
+                    <Group justify='space-between' p='xs' style={{ borderBottom: '1px solid #dee2e6' }}>
+                        <Text fw={500}>帖子详情</Text>
+                        <ActionIcon onClick={handleClose} variant='subtle'><IconX /></ActionIcon>
+                    </Group>
+                    {/* 2. 可伸缩、可滚动的内容区 */}
+                    <Box style={{ flex: 1, overflowY: 'auto' }}>
+                        <PostContentView post={post} actionMenu={postActionMenu} />
+                        {commentsList}
+                    </Box>
+                    {/* 3. 固定的底部输入框 */}
+                    <CommentInput onSubmit={handleAddComment} />
                 </Box>
-                <CommentInput onSubmit={handleAddComment} />
-            </Box>
-        </Box>
+            ) : (
+                // --- 桌面端全新布局 (用 Box 代替 Grid) ---
+                <Box style={{ display: 'flex', height: '100%', maxHeight: '80vh', minHeight: '80vh' }}>
+                    {/* 左侧栏 */}
+                    <Box style={{ flex: 7, borderRight: '1px solid #dee2e6', overflowY: 'auto' }}>
+                        <PostContentView post={post} actionMenu={postActionMenu} />
+                    </Box>
+                    {/* 右侧栏 */}
+                    <Box style={{ flex: 5, display: 'flex', flexDirection: 'column' }}>
+                        {/* 1. 固定的头部 */}
+                        <Group justify='space-between' p='sm' style={{ borderBottom: '1px solid #dee2e6' }}>
+                            <Text fw={500}>评论 ({comments.length})</Text>
+                            <ActionIcon onClick={handleClose} variant='subtle'><IconX /></ActionIcon>
+                        </Group>
+                        {/* 2. 可伸缩、可滚动的内容区 */}
+                        <Box style={{ flex: 1, overflowY: 'auto' }}>
+                            {commentsList}
+                        </Box>
+                        {/* 3. 固定的底部输入框 */}
+                        <CommentInput onSubmit={handleAddComment} />
+                    </Box>
+                </Box>
+            )
+        )
     );
 }
