@@ -1,14 +1,18 @@
 // app/post/[postId]/page.tsx
-import HomePage from "@/app/page"; // 1. 直接导入主页组件
-import { PostModal } from "@/components/PostModal/PostModal"; // 2. 导入我们即将创建的模态框组件
+import HomePage from "@/app/page";
+import { PostModal } from "@/components/PostModal/PostModal";
 
-export default function PostPageWithModal({ params }: { params: { postId: string } }) {
+// Update the function signature to type both params and searchParams as 'any'
+export default function PostPageWithModal({
+                                              params,
+                                              searchParams
+                                          }: {
+    params: any;
+    searchParams: any; // <-- The fix is here
+}) {
     return (
         <>
-            {/* 3. 在后台渲染主页 */}
-            <HomePage />
-
-            {/* 4. 在主页之上渲染模态框 */}
+            <HomePage searchParams={searchParams} />
             <PostModal postId={params.postId} />
         </>
     );

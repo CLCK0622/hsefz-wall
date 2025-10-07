@@ -11,6 +11,7 @@ import {Footer} from "@/components/Footer/Footer";
 import "./main.scss";
 import {FeedbackWidget} from "@/components/FeedbackWidget/FeedbackWidget";
 import {Watermark} from "@/components/Watermark/Watermark";
+import {Suspense} from "react";
 
 export const metadata = {
     title: '张江多功能墙',
@@ -27,7 +28,9 @@ export default function RootLayout(props: { children: React.ReactNode; modal: Re
                 {/* 👇 Wrap with ModalsProvider */}
                 <ModalsProvider>
                     <Notifications />
-                    <Header />
+                    <Suspense fallback={<header style={{ height: 60 }} />}>
+                        <Header />
+                    </Suspense>
                     <div className="main-content">
                         {props.children}
                     </div>

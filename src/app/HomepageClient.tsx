@@ -1,38 +1,57 @@
 // app/HomePageClient.tsx
-'use client'; // 因为 PostFeed 是客户端组件，整个文件都标记为 client
-
-import { useState, useEffect } from 'react';
+'use client';
+import { useEffect } from 'react';
 import Header from "@/components/Header/Header";
 import { CreatePostForm } from "@/components/CreatePostForm/CreatePostForm";
 import { PostFeed } from "@/components/PostFeed/PostFeed";
-import { Container, Loader, Group, Text } from '@mantine/core';
-import { ClerkLoaded, ClerkLoading, useUser } from "@clerk/nextjs";
+import { Container, Loader, Group, Text } from '@mantine/core'; // 移除了 Center
+import { ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
 import { PostWithDetails } from "@/components/PostCard/PostCard";
+import { usePostStore } from '@/lib/store';
 
-// 1. 将 props 类型定义移到这里
 interface HomePageProps {
     initialPosts: PostWithDetails[];
     currentUserId?: number;
     currentUserRole?: string;
+    searchQuery?: string;
 }
 
-// 2. 组件接收 props
-export default function HomePageClient({ initialPosts, currentUserId, currentUserRole }: HomePageProps) {
-    // 3. 这里不再需要数据获取逻辑，因为数据将由服务器组件传入
+export default function HomePageClient({ initialPosts, currentUserId, currentUserRole, searchQuery }: HomePageProps) {
+    const { isSearching, setIsSearching } = usePostStore();
+
+    useEffect(() => {
+        setIsSearching(false);
+    }, [initialPosts, setIsSearching]);
 
     return (
-            <Container my="md">
+        <>
                 <ClerkLoaded>
                     <CreatePostForm userRole={currentUserRole} />
-                    {initialPosts.length > 0 ? (
-                        <PostFeed posts={initialPosts} />
-                    ) : (
-                        <Text c="dimmed" ta="center" mt="xl">还没有人发布内容，快来抢占第一个吧！</Text>
+
+                    {/* 移除了外层的 isSearching 条件判断 */}
+                    {searchQuery && !isSearching && (
+                        <Text fw={500} mb="md">
+                            关于 “{searchQuery}” 的搜索结果 ({initialPosts.length} 条)
+                        </Text>
                     )}
+
+                    {/* PostFeed 组件现在始终被渲染，我们只是把加载状态传进去 */}
+                    <PostFeed
+                        posts={initialPosts}
+                        isLoading={isSearching}
+                        // currentUserId 和 currentUserRole 只是为了保持 props 签名一致，可以省略
+                    />
+
+                    {!isSearching && initialPosts.length === 0 && (
+                        <Text c="dimmed" ta="center" mt="xl">
+                            {searchQuery ? '没有找到相关的帖子。' : '还没有人发布内容，快来抢占第一个吧！'}
+                        </Text>
+                    )}
+
                 </ClerkLoaded>
                 <ClerkLoading>
                     <Group justify="center" mt="xl"><Loader /></Group>
                 </ClerkLoading>
-            </Container>
+        </>
     );
 }

@@ -1,32 +1,41 @@
 // components/PostFeed/PostFeed.tsx
 'use client';
-import { Box } from '@mantine/core';
+import { Box, Center, Loader } from '@mantine/core'; // 1. 导入 Center 和 Loader
 import { PostCard, PostWithDetails } from '../PostCard/PostCard';
 import styles from './PostFeed.module.scss';
-import Link from 'next/link';
-import { usePostStore } from '@/lib/store'; // 1. 导入 store
+import { usePostStore } from '@/lib/store';
 import { useEffect } from 'react';
+import Link from 'next/link';
 
-export function PostFeed({ posts: initialPosts }: { posts: PostWithDetails[]; }) {
-    // 2. 从 store 中获取 posts 和 setPosts 方法
+// 2. 组件现在接收一个新的 isLoading 属性
+export function PostFeed({ posts: initialPosts, isLoading }: {
+    posts: PostWithDetails[];
+    isLoading?: boolean; // 设为可选
+}) {
     const { posts, setPosts, toggleLike } = usePostStore();
 
-    // 3. 当初始数据变化时，将其载入 store
     useEffect(() => {
         setPosts(initialPosts);
     }, [initialPosts, setPosts]);
 
     return (
+        // 3. 容器本身始终被渲染
         <Box className={styles.masonryContainer}>
-            {posts.map(post => (
-                <PostCard
-                    key={post.id}
-                    post={post}
-                    className={styles.masonryItem}
-                    // 4. 将 store 中的 toggleLike 方法传递下去
-                    onLikeToggle={toggleLike}
-                />
-            ))}
+            {/* 4. 在容器内部根据 isLoading 决定显示什么 */}
+            {isLoading ? (
+                <Box w="100%" h={400} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Loader />
+                </Box>
+            ) : (
+                posts.map(post => (
+                    <Link key={post.id} href={`/post/${post.id}`} className={styles.masonryItem} style={{ textDecoration: 'none' }}>
+                        <PostCard
+                            post={post}
+                            onLikeToggle={() => toggleLike(post.id)}
+                        />
+                    </Link>
+                ))
+            )}
         </Box>
     );
 }

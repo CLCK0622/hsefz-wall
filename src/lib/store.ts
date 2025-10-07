@@ -6,13 +6,17 @@ import { notifications } from '@mantine/notifications';
 
 interface PostStore {
     posts: PostWithDetails[];
+    isSearching: boolean; // <-- 新增
     setPosts: (posts: PostWithDetails[]) => void;
+    setIsSearching: (isSearching: boolean) => void; // <-- 新增
     toggleLike: (postId: number) => void;
 }
 
 export const usePostStore = create<PostStore>((set, get) => ({
     posts: [],
+    isSearching: false, // <-- 初始值为 false
     setPosts: (posts) => set({ posts }),
+    setIsSearching: (isSearching) => set({ isSearching }),
 
     toggleLike: (postId: number) => {
         const originalPosts = get().posts;

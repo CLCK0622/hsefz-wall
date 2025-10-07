@@ -1,22 +1,24 @@
 /* components/PostFeed/PostFeed.module.scss */
 
 .masonryContainer {
-    /* 定义列数和列间距 */
     column-gap: var(--mantine-spacing-lg);
 
     /* 默认（手机端）显示 2 列 */
-    column-count: 1;
+    column-count: 2;
 
-    /* 在大屏幕上（lg 断点及以上）显示 3 列 */
+    /* 在大屏幕上显示 3 列 */
     @media (min-width: 768px) {
         column-count: 3;
     }
 
+    max-width: 928px;
+    width: 100%;
+    margin: 0 auto;
 }
 
 .masonryItem {
-    /* 这是最重要的部分：防止卡片在跨列时被切断 */
-    break-inside: avoid;
-    /* 为卡片底部添加一些间距 */
-    margin-bottom: var(--mantine-spacing-lg);
+    break-inside: avoid; /* 防止卡片在跨列时被切断 */
+    margin-bottom: var(--mantine-spacing-lg); /* <-- 核心：为每个卡片下方添加间距 */
+    display: inline-block; /* 确保 margin 生效 */
+    width: 100%;
 }
