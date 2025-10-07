@@ -38,7 +38,7 @@ export default function PostModal({ params }: { params: any }) {
     }, [postId, postFromStore, router]);
 
     return (
-        <Modal opened={true} onClose={() => router.back()} size="85%" fullScreen={isMobile} padding={0} zIndex={2000} styles={{ body: { height: '100%' } }} withCloseButton={false}>
+        <Modal opened={true} onClose={() => router.back()} size="80%" fullScreen={isMobile} padding={0} zIndex={2000} styles={{ body: { minHeight: '80vh' } }} withCloseButton={false}>
             {isLoading && <Center h="100%"><Loader /></Center>}
             {!isLoading && post && (
                 <PostDetailView
