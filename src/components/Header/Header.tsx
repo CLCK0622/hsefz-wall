@@ -1,7 +1,7 @@
 // components/Header/Header.tsx
 'use client';
 
-import {Menu, Group, Avatar, Text, rem, Skeleton, Indicator, Box, TextInput, ActionIcon} from '@mantine/core';
+import {Menu, Group, Avatar, Text, rem, Skeleton, Indicator, Box, TextInput, ActionIcon, Card} from '@mantine/core';
 import {useUser, useClerk} from '@clerk/nextjs';
 import Link from 'next/link';
 import {IconReport, IconUserCheck, IconUsers, IconSettings, IconLogout, IconSearch, IconX} from '@tabler/icons-react';
@@ -72,7 +72,7 @@ export default function Header() {
 
     return (
         <header className={styles.header}>
-            <div className={styles.container}>
+            <Card className={styles.container} p="md" radius="md" shadow="sm">
                 <Link href="/" className={styles.logo}>张江多功能墙</Link>
 
                 <Box style={{ flexGrow: 1, maxWidth: '500px', margin: '0 20px' }}>
@@ -82,6 +82,7 @@ export default function Header() {
                             value={searchTerm}
                             onChange={(event) => setSearchTerm(event.currentTarget.value)}
                             leftSection={<IconSearch size="1rem" stroke={1.5} />}
+                            variant="unstyled"
                             rightSection={
                                 searchTerm ? (
                                     <ActionIcon size="sm" variant="subtle" color="gray" onClick={handleClearSearch}>
@@ -157,7 +158,7 @@ export default function Header() {
                         </Menu.Dropdown>
                     </Menu>
                 </Group>
-            </div>
+            </Card>
         </header>
     );
 }

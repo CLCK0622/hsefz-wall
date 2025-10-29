@@ -1,0 +1,71 @@
+// 使用 Sass 变量来统一定义颜色和模糊程度
+$color-purple: rgba(173, 161, 255, 0.5); // 左上角的淡紫色
+$color-peach: rgba(255, 218, 185, 0.6); // 右上角的淡桃色
+$color-pink: rgba(255, 192, 203, 0.6); //
+$blur-amount: 150px; // 模糊程度，可以调大以获得更柔和的效果
+
+.glowContainer {
+    // 固定在视口，作为整个页面的背景
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh; // 占满整个视口高度
+    overflow: hidden; // 隐藏溢出的模糊边缘，防止出现滚动条
+    z-index: -1; // 关键：将其置于所有内容的“后面”
+    pointer-events: none; // 关键：让鼠标事件“穿透”它，以免遮挡内容
+}
+
+.glowSpot {
+    position: absolute;
+    border-radius: 50%; // 圆形
+
+    // 关键：使用 filter: blur() 来创建光斑效果
+    // 注意：某些浏览器可能需要 -webkit-filter
+    filter: blur($blur-amount);
+}
+
+// 定义第一个光斑（左上角，紫色）
+.spot1 {
+    background-color: $color-purple;
+    width: 500px;
+    height: 500px;
+    top: -200px; // 移出视口一些，只显示一部分
+    left: 0px;
+}
+
+// 定义第二个光斑（右上角，桃色）
+.spot2 {
+    background-color: $color-peach;
+    width: 450px;
+    height: 450px;
+    top: -100px;
+    right: -200px; // 同样移出视口
+}
+
+.spot3 {
+    background-color: $color-purple;
+    width: 450px;
+    height: 450px;
+    top: 500px;
+    right: 200px; // 同样移出视口
+}
+
+.spot4 {
+    background-color: $color-peach;
+    width: 450px;
+    height: 450px;
+    top: 300px;
+    right: 800px; // 同样移出视口
+}
+
+.spot5 {
+    background-color: $color-pink;
+    width: 450px;
+    height: 450px;
+    top: -200px;
+    right: 500px; // 同样移出视口
+}
+
+// 你可以随意添加更多
+// .spot3 { ... }

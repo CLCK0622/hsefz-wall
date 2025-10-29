@@ -4,7 +4,7 @@
     column-gap: var(--mantine-spacing-lg);
 
     /* 默认（手机端）显示 2 列 */
-    column-count: 2;
+    column-count: 1;
 
     /* 在大屏幕上显示 3 列 */
     @media (min-width: 768px) {

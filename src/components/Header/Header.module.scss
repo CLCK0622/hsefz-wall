@@ -1,22 +1,23 @@
 /* components/Header/Header.module.scss */
 
 .header {
-    background-color: var(--mantine-color-body);
-    border-bottom: 1px solid var(--mantine-color-gray-3); // 使用 Mantine 的颜色变量
-    padding: 0 var(--mantine-spacing-md); // 使用 Mantine 的间距变量
     height: 60px;
     min-height: 60px;
     flex-shrink: 0;
     z-index: 1001; // 确保在 Modal 之上
     position: sticky;
-    top: 0;
+    top: 10px;
+    padding: 0 16px;
+    max-width: 928px;
+    width: 100%;
+    margin: 10px auto 0 auto;
 }
 
 .container {
-    max-width: 975px;
     height: 100%;
     margin: 0 auto;
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
 }

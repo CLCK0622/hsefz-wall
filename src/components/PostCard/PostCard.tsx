@@ -48,7 +48,7 @@ export function PostCard({post, className, onLikeToggle}: PostCardProps) {
 
     return (
         <Link href={`/post/${post.id}`} className={className} style={{textDecoration: 'none'}}>
-            <Card className={className} padding="md" radius="md" withBorder
+            <Card className={className} padding="md" radius="md" shadow="sm"
                   style={{cursor: 'pointer'}}>
                 {post.images.length > 0 && (
                     <Card.Section mb="md">

@@ -12,6 +12,7 @@ import "./main.scss";
 import {FeedbackWidget} from "@/components/FeedbackWidget/FeedbackWidget";
 import {Watermark} from "@/components/Watermark/Watermark";
 import {Suspense} from "react";
+import GlowBackground from "@/components/GlowBackground/GlowBackground";
 
 export const metadata = {
     title: '张江多功能墙',
@@ -27,6 +28,7 @@ export default function RootLayout(props: { children: React.ReactNode; modal: Re
             <MantineProvider defaultColorScheme="light">
                 {/* 👇 Wrap with ModalsProvider */}
                 <ModalsProvider>
+                    <GlowBackground />
                     <Notifications />
                     <Suspense fallback={<header style={{ height: 60 }} />}>
                         <Header />

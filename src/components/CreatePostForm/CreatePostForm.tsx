@@ -13,12 +13,13 @@ import {
     Image,
     Box,
     ActionIcon,
-    Indicator
+    Indicator, Card
 } from '@mantine/core';
 import {notifications} from '@mantine/notifications';
 import {IconX} from '@tabler/icons-react';
+import styles from './CreatePostForm.module.scss';
 
-export function CreatePostForm({ userRole }: { userRole?: string }) {
+export function CreatePostForm({userRole}: { userRole?: string }) {
     const [content, setContent] = useState('');
     const [files, setFiles] = useState<File[]>([]);
     const [isAnonymous, setIsAnonymous] = useState(false);
@@ -119,40 +120,44 @@ export function CreatePostForm({ userRole }: { userRole?: string }) {
         <Box component="form" onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
-        }} p="md" mb="xl"
-             style={{border: '1px solid var(--mantine-color-gray-3)', borderRadius: 'var(--mantine-radius-md)'}}>
-            <Textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="分享新鲜事..." autosize
-                      minRows={3}/>
+        }}>
+            <Card p="md" mb="xl" radius="md" shadow="sm">
+                <span className={styles.textarea}><Textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="分享新鲜事..."
+                          autosize variant="unstyled" resize="vertical"
+                                minRows={5}/></span>
 
-            {files.length > 0 && (
-                <SimpleGrid cols={{base: 4, xs: 6}} mt="md">
-                    {previews}
-                </SimpleGrid>
-            )}
+                {files.length > 0 && (
+                    <SimpleGrid cols={{base: 4, xs: 6}} mt="md">
+                        {previews}
+                    </SimpleGrid>
+                )}
 
-            <Group justify="space-between" mt="md">
-                <Group>
-                    {/* 3. 更新：按钮文字和逻辑 */}
-                    <FileButton onChange={handleFileChange} accept="image/png,image/jpeg,image/webp,image/gif" multiple>
-                        {(props) => <Button variant="light" {...props} disabled={files.length >= 9}>添加图片</Button>}
-                    </FileButton>
-                    <Text size="sm" c="dimmed">{files.length}/9</Text>
-                    {/* 4. 新增：文件大小提示 */}
-                    <Text size="xs" c="dimmed">单图最大 4.5MB</Text>
+                <Group justify="space-between" mt="md">
+                    <Group>
+                        {/* 3. 更新：按钮文字和逻辑 */}
+                        <FileButton onChange={handleFileChange} accept="image/png,image/jpeg,image/webp,image/gif"
+                                    multiple>
+                            {(props) => <Button variant="light" {...props}
+                                                disabled={files.length >= 9}>添加图片</Button>}
+                        </FileButton>
+                        <Text size="sm" c="dimmed">{files.length}/9</Text>
+                        {/* 4. 新增：文件大小提示 */}
+                        <Text size="xs" c="dimmed">单图最大 4.5MB</Text>
+                    </Group>
+                    <Group>
+                        {isAdmin && (
+                            <Checkbox
+                                label="发布为公告"
+                                checked={isAnnouncement}
+                                onChange={(event) => setIsAnnouncement(event.currentTarget.checked)}
+                            />
+                        )}
+                        <Checkbox label="匿名发布" checked={isAnonymous} disabled={isAnnouncement}
+                                  onChange={(event) => setIsAnonymous(event.currentTarget.checked)}/>
+                        <Button type="submit" loading={isSubmitting}>发布</Button>
+                    </Group>
                 </Group>
-                <Group>
-                    {isAdmin && (
-                        <Checkbox
-                            label="发布为公告"
-                            checked={isAnnouncement}
-                            onChange={(event) => setIsAnnouncement(event.currentTarget.checked)}
-                        />
-                    )}
-                    <Checkbox label="匿名发布" checked={isAnonymous} disabled={isAnnouncement}
-                              onChange={(event) => setIsAnonymous(event.currentTarget.checked)}/>
-                    <Button type="submit" loading={isSubmitting}>发布</Button>
-                </Group>
-            </Group>
+            </Card>
         </Box>
     );
 }
