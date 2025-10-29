@@ -96,7 +96,7 @@ export default function Header() {
                 </Box>
 
                 <Group>
-                    <Menu shadow="md" width={220} withArrow position="bottom-end">
+                    <Menu shadow="md" width={220} withArrow position="bottom-end" zIndex={1002} radius="md">
                         <Menu.Target>
                             <Avatar src={user.imageUrl} radius="xl" style={{cursor: 'pointer'}}/>
                         </Menu.Target>

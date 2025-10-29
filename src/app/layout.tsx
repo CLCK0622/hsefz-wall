@@ -21,7 +21,7 @@ export const metadata = {
 
 export default function RootLayout(props: { children: React.ReactNode; modal: React.ReactNode; }) {
     return (
-        <ClerkProvider localization={zhCN}>
+        <ClerkProvider localization={zhCN} appearance={{theme: "simple"}}>
             <html lang="zh">
             <head><ColorSchemeScript /><script async src="https://tally.so/widgets/embed.js"></script></head>
             <body>
